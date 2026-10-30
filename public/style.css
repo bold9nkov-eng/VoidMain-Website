@@ -93,8 +93,8 @@ h1,h2{ text-wrap:balance }
 
 
 /* Six selectable personal backgrounds */
-body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.96) 0%,rgba(8,5,18,.83) 36%,rgba(8,5,18,.58) 70%,rgba(8,5,18,.72) 100%),var(--void-bg-url,url("https://images.weserv.nl/?url=res.visualnovelgames.org%2FVisualNovelGames%2FVisualNovelGames.jpg&w=1600&q=76&output=webp"))!important;background-position:center,right 20%;background-size:cover,auto 115vh!important;transition:background-image .25s ease}
-@media(max-width:780px){body::before{background-image:linear-gradient(180deg,rgba(8,5,18,.82),rgba(8,5,18,.94) 58%,#080512 100%),var(--void-bg-url,url("https://images.weserv.nl/?url=res.visualnovelgames.org%2FVisualNovelGames%2FVisualNovelGames.jpg&w=1600&q=76&output=webp"))!important;background-position:center,right top;background-size:cover,auto 76vh!important}}
+body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.96) 0%,rgba(8,5,18,.83) 36%,rgba(8,5,18,.58) 70%,rgba(8,5,18,.72) 100%),var(--void-bg-url,url("https://i.pinimg.com/736x/be/c5/12/bec51211272948af09daed940d4acf57.jpg"))!important;background-position:center,right 20%;background-size:cover,auto 115vh!important;transition:background-image .25s ease}
+@media(max-width:780px){body::before{background-image:linear-gradient(180deg,rgba(8,5,18,.82),rgba(8,5,18,.94) 58%,#080512 100%),var(--void-bg-url,url("https://i.pinimg.com/736x/be/c5/12/bec51211272948af09daed940d4acf57.jpg"))!important;background-position:center,right top;background-size:cover,auto 76vh!important}}
 .background-picker-open{border-color:#b68aff88!important;color:#f0e4ff!important;white-space:nowrap}
 .background-modal{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:#05030bea;backdrop-filter:blur(14px)}
 .background-modal.hidden{display:none!important}
