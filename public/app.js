@@ -26,3 +26,30 @@ async function loadAccountOverview(){if(!currentUser)return;const status=$("#mcL
 $("#mcLinkButton")?.addEventListener("click",async()=>{const code=$("#mcLinkCode").value.trim(),msg=$("#vmAccountMessage");if(!/^\d{6}$/.test(code)){msg.textContent="Введи шестизначный код из игры.";return}const b=$("#mcLinkButton");b.disabled=true;try{const r=await fetch("/api/account/link",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось привязать аккаунт");msg.textContent="Minecraft-аккаунт "+d.linked.username+" успешно привязан!";$("#mcLinkCode").value="";await loadAccountOverview()}catch(e){msg.textContent=e.message}finally{b.disabled=false}});
 $("#dailyRewardCTA")?.addEventListener("click",async()=>{try{const r=await fetch("/api/auth/me",{cache:"no-store"});const d=await r.json();if(d.user){setAccountUser(d.user)}else{setAccountUser(null)}$("#modal").classList.remove("hidden")}catch{$("#modal").classList.remove("hidden")}});
 $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRewardButton"),msg=$("#vmAccountMessage");b.disabled=true;try{const r=await fetch("/api/account/daily-claim",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось получить награду");msg.textContent=d.message||"Заявка отправлена.";await loadAccountOverview()}catch(e){msg.textContent=e.message;b.disabled=false}});
+
+
+/* Personal VoidMain background picker */
+(()=>{
+ const backgrounds=[
+  {id:"moon",name:"Лунная ночь",kind:"Аниме",url:"https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg",credit:"VisualNovelGames"},
+  {id:"violet",name:"Фиолетовые цветы",kind:"Аниме",url:"https://img3.wallspic.com/crops/5/4/0/6/2/126045/126045-el_pelo_largo-animacion-ilustracion-el_manga-caricatura-3840x2160.jpg",credit:"Tatiana T / Wallspic"},
+  {id:"gamer",name:"Аниме-геймер",kind:"Аниме",url:"https://img3.wallspic.com/attachments/crops/5/1/1/3/7/173115/173115-anime-linda_chica_anime-chica_gamer-chica_chica-kawaii-3840x2160.jpg",credit:"Wallspic"},
+  {id:"dream",name:"Сиреневая мечта",kind:"Аниме",url:"https://img.qimanbz.com/2025/11/honkai-star-rail-xiadie-ai-featured-800x450-1.webp",credit:"QimanBZ"},
+  {id:"butterfly",name:"Ночные бабочки",kind:"Аниме",url:"https://wallpaperbat.com/img/36426918-anime-girl-wallpaper-4k-girly.jpg",credit:"WallpaperBat"},
+  {id:"cat",name:"Котик VoidMain",kind:"Котик",url:"https://img3.wallspic.com/attachments/crops/9/1/4/2/7/172419/172419-gato-gatos_en_play_cafe-felidae-gatito-salud_del_gato-3840x2160.jpg",credit:"Wallspic"}
+ ];
+ const modal=document.querySelector("#backgroundModal"),grid=document.querySelector("#backgroundChoices");
+ if(!modal||!grid)return;
+ const saved=()=>{try{return localStorage.getItem("voidmain-background")||"moon"}catch{return"moon"}};
+ let selected=saved();
+ function apply(id){const item=backgrounds.find(x=>x.id===id)||backgrounds[0];selected=item.id;document.documentElement.style.setProperty("--void-bg-url",'url("'+item.url+'")');try{localStorage.setItem("voidmain-background",item.id)}catch{}grid.querySelectorAll(".background-choice").forEach(b=>{const active=b.dataset.background===selected;b.classList.toggle("selected",active);b.setAttribute("aria-pressed",String(active))})}
+ grid.innerHTML=backgrounds.map(x=>'<button class="background-choice" type="button" data-background="'+x.id+'" aria-pressed="false"><span class="background-thumb" style="background-image:url(&quot;'+x.url+'&quot;)"></span><span class="background-choice-meta"><strong>'+x.name+'</strong><small>'+(x.kind==="Котик"?"🐾 Котик":"✦ Аниме")+'</small></span></button>').join("");
+ grid.addEventListener("click",e=>{const b=e.target.closest("[data-background]");if(b)apply(b.dataset.background)});
+ function open(){modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");document.body.classList.add("background-modal-open")}
+ function close(){modal.classList.add("hidden");modal.setAttribute("aria-hidden","true");document.body.classList.remove("background-modal-open")}
+ document.querySelector("#backgroundPickerOpen")?.addEventListener("click",open);
+ document.querySelector("#backgroundPickerClose")?.addEventListener("click",close);
+ modal.addEventListener("click",e=>{if(e.target===modal)close()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.classList.contains("hidden"))close()});
+ apply(selected);
+})();
