@@ -115,3 +115,16 @@ body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.96) 0%,rgba(8,5
 .background-credit a{color:#d2b5ff;text-decoration:underline}
 @media(max-width:650px){.background-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.background-dialog{padding:18px}.background-choice-meta{align-items:flex-start;flex-direction:column;gap:4px}.background-picker-open{display:block!important;padding:9px 11px;font-size:9px}}
 @media(max-width:390px){.background-choices{grid-template-columns:1fr}}
+
+/* Animated background selection window */
+.background-modal{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease}
+.background-modal.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.background-dialog{opacity:0;transform:translateY(28px) scale(.94);filter:blur(8px);transition:transform .34s cubic-bezier(.2,.85,.25,1),opacity .28s ease,filter .28s ease}
+.background-modal.is-open .background-dialog{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+.background-choice{opacity:0;transform:translateY(14px) scale(.97);animation:backgroundTileIn .42s cubic-bezier(.2,.8,.2,1) forwards}
+.background-choice:nth-child(1){animation-delay:.04s}.background-choice:nth-child(2){animation-delay:.09s}.background-choice:nth-child(3){animation-delay:.14s}.background-choice:nth-child(4){animation-delay:.19s}.background-choice:nth-child(5){animation-delay:.24s}.background-choice:nth-child(6){animation-delay:.29s}
+@keyframes backgroundTileIn{to{opacity:1;transform:translateY(0) scale(1)}}
+.background-choice.selected .background-thumb{position:relative}
+.background-choice.selected .background-choice-meta:after{content:"✓ ВЫБРАНО";color:#d9baff;font-size:9px;letter-spacing:1px}
+.background-picker-open{position:relative;z-index:6;cursor:pointer;pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.background-modal,.background-dialog,.background-choice{transition:none!important;animation:none!important;opacity:1;transform:none;filter:none}}
