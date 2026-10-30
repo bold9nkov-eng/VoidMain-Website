@@ -59,3 +59,36 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.classList.contains("hidden"))close()});
  choose(selected);
 })();
+
+// VoidMain secret hunt v1: five runes unlock a hidden room
+(()=>{
+ const targets=[".hero .sigil",".ticker","#features","#facts",".cat-secret"];
+ const glyphs=["✦","◇","☾","♧","♛"];
+ const found=new Set();
+ try{JSON.parse(localStorage.getItem("voidmain-runes")||"[]").forEach(x=>found.add(x))}catch{}
+ const room=document.createElement("section");
+ room.id="secretRoom";room.className="void-secret-room hidden";
+ room.innerHTML='<div class="void-secret-card"><small>VOIDMAIN / CLASSIFIED</small><div class="void-secret-emblem">✧</div><h2>ТЫ ОТКРЫЛ <em>СЕКРЕТНУЮ КОМНАТУ.</em></h2><p>Пять символов найдены. Ты настоящий исследователь VoidMain. Забирай свою порцию фиолетовой магии 💜</p><div class="void-secret-cat">ฅ^•ﻌ•^ฅ</div><button type="button" class="ghost" id="secretRoomClose">ЗАКРЫТЬ КОМНАТУ</button></div>';
+ const community=document.querySelector("#community");
+ if(community)community.before(room);
+ function paint(){document.querySelectorAll("[data-secret-rune]").forEach(b=>{const id=b.dataset.secretRune;b.classList.toggle("rune-found",found.has(id));b.setAttribute("aria-label",found.has(id)?"Секрет найден":"Найти секретный символ")});if(found.size===5){room.classList.remove("hidden");try{localStorage.setItem("voidmain-secret-room","open")}catch{}}}
+ targets.forEach((selector,i)=>{const host=document.querySelector(selector);if(!host)return;host.classList.add("rune-host");const b=document.createElement("button");b.type="button";b.className="secret-rune";b.dataset.secretRune=String(i);b.textContent=glyphs[i];b.title="Секретный символ";host.append(b);b.addEventListener("click",()=>{if(found.has(String(i)))return;found.add(String(i));try{localStorage.setItem("voidmain-runes",JSON.stringify([...found]))}catch{}paint();if(found.size<5)toast("Символ найден! "+found.size+"/5 ✦");else toast("СЕКРЕТНАЯ КОМНАТА ОТКРЫТА 💜")})});
+ document.querySelector("#secretRoomClose")?.addEventListener("click",()=>room.classList.add("hidden"));
+ paint();
+})();
+
+// Live anniversary counter
+(()=>{
+ const date=new Date(Date.UTC(2026,8,26));
+ const el=document.querySelector("#voidDaysSinceOpen");
+ if(!el)return;
+ const update=()=>{const now=new Date(),today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());el.textContent=Math.max(0,Math.floor((today-date.getTime())/86400000)).toLocaleString("ru-RU")+" ДНЕЙ"};
+ update();setInterval(update,60000);
+})();
+
+// Lightweight violet cursor sparkles (disabled for touch and reduced-motion users)
+(()=>{
+ if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches||!("ontouchstart" in window&&navigator.maxTouchPoints>0))return;
+ let last=0;
+ document.addEventListener("pointermove",e=>{const now=performance.now();if(now-last<48)return;last=now;const p=document.createElement("i");p.className="void-cursor-spark";p.textContent=Math.random()>.5?"✦":"·";p.style.left=e.clientX+"px";p.style.top=e.clientY+"px";document.body.append(p);setTimeout(()=>p.remove(),700)},{passive:true});
+})();
