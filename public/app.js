@@ -94,3 +94,15 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
  let last=0;
  document.addEventListener("pointermove",e=>{const now=performance.now();if(now-last<48)return;last=now;const p=document.createElement("i");p.className="void-cursor-spark";p.textContent=Math.random()>.5?"✦":"·";p.style.left=e.clientX+"px";p.style.top=e.clientY+"px";document.body.append(p);setTimeout(()=>p.remove(),700)},{passive:true});
 })();
+
+ 
+// Live top-10 leaderboards from the Minecraft bridge
+(()=>{
+ const play=document.querySelector("#playtimeLeaderboard"),coin=document.querySelector("#voidcoinLeaderboard"),stamp=document.querySelector("#leaderboardUpdated");
+ if(!play||!coin)return;
+ const safe=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+ const hours=t=>{const mins=Math.floor(Math.max(0,Number(t)||0)/1200);const h=Math.floor(mins/60),m=mins%60;return h?h.toLocaleString("ru-RU")+" ч "+m+" мин":m+" мин"};
+ const render=(el,rows,format)=>{el.innerHTML=rows.length?rows.map((p,i)=>'<li class="leaderboard-row"><span class="leaderboard-rank">'+(i+1)+'</span><strong>'+safe(p.username)+'</strong><span class="leaderboard-value">'+format(p)+'</span></li>').join(""):'<li class="leaderboard-empty">Пока нет данных. Играй на сервере — и попадёшь в рейтинг!</li>'};
+ async function update(){try{const r=await fetch("/api/leaderboards",{cache:"no-store"});if(!r.ok)throw Error("leaderboards");const d=await r.json();render(play,d.playtime||[],p=>hours(p.playtime_ticks));render(coin,d.voidcoin||[],p=>Number(p.points||0).toLocaleString("ru-RU")+" VC");if(stamp)stamp.textContent=d.updated_at?"Обновлено: "+new Date(d.updated_at+"Z").toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):"Статистика обновляется автоматически"}catch{play.innerHTML='<li class="leaderboard-empty">Не удалось загрузить рейтинг. Попробуй позже.</li>';coin.innerHTML='<li class="leaderboard-empty">Не удалось загрузить рейтинг. Попробуй позже.</li>'}}
+ update();setInterval(update,30000);
+})();
