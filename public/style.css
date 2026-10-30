@@ -17,7 +17,7 @@
 
 /* Animated purple anime backdrop */
 body{position:relative;isolation:isolate;background:#090611}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(90deg,rgba(9,6,17,.97) 0%,rgba(9,6,17,.88) 38%,rgba(9,6,17,.62) 70%,rgba(9,6,17,.72) 100%),url("https://images8.alphacoders.com/137/1377792.png");background-position:center,right center;background-size:cover,auto 112vh;background-repeat:no-repeat;transform-origin:right center;animation:animeBackdropDrift 24s ease-in-out infinite alternate}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(90deg,rgba(9,6,17,.97) 0%,rgba(9,6,17,.88) 38%,rgba(9,6,17,.62) 70%,rgba(9,6,17,.72) 100%),url("https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg");background-position:center,right center;background-size:cover,auto 112vh;background-repeat:no-repeat;transform-origin:right center;animation:animeBackdropDrift 24s ease-in-out infinite alternate}
 body>.glow{z-index:1;pointer-events:none}
 body>header,body>main,body>footer{position:relative;z-index:2}
 @keyframes animeBackdropDrift{0%{transform:scale(1) translate3d(0,0,0);filter:saturate(.9)}100%{transform:scale(1.045) translate3d(-.6%,.4%,0);filter:saturate(1.2)}}
@@ -67,3 +67,26 @@ body>header,body>main,body>footer{position:relative;z-index:2}
 
 /* Live Minecraft server status */
 .status{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #ffffff20;border-radius:999px;background:#100b1bcc;letter-spacing:.4px;font-size:11px}.status.is-online{color:#9df0c2;border-color:#55d99a66;background:#12322288;box-shadow:0 0 24px #38d98a18}.status.is-offline{color:#ffabb8;border-color:#ff7b9366;background:#35131d88}
+
+/* VoidMain violet redesign */
+:root{--bg:#080512;--purple:#b68aff;--text:#f8f2ff;--muted:#b8a9ca}
+body{background:radial-gradient(ellipse at 75% 12%,#281044 0%,#10091d 38%,#080512 78%)}
+body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.97) 0%,rgba(8,5,18,.86) 34%,rgba(8,5,18,.52) 68%,rgba(8,5,18,.66) 100%),url("https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg");background-position:center,right 20%;background-size:cover,auto 115vh}
+@media(max-width:780px){body::before{background-image:linear-gradient(180deg,rgba(8,5,18,.78),rgba(8,5,18,.93) 58%,#080512 100%),url("https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg");background-position:center,right top;background-size:cover,auto 76vh}}
+.hero h1 em,h2 em,.logo span{background:linear-gradient(100deg,#e7d5ff 0%,#b78aff 24%,#f3c5ff 48%,#9360ef 72%,#e7d5ff 100%);background-size:240% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:voidTextShine 7s linear infinite}
+@keyframes voidTextShine{to{background-position:240% center}}
+.hero>p,.large,.muted,.rules-intro,.community-intro{color:#d0c2e0}
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.hero-actions .primary{margin-top:0}
+.reward-cta{margin-top:0;padding:16px 20px;border:1px solid #c39aff88;border-radius:4px;color:#eadcff;background:linear-gradient(110deg,#24113b,#160d27);font-size:11px;font-weight:800;letter-spacing:1px;box-shadow:0 0 28px #9b5cff25;transition:.25s}
+.reward-cta:hover{transform:translateY(-3px);border-color:#e4cfff;box-shadow:0 0 35px #a66bff55}
+.security-note{padding:13px 15px;border:1px solid #a66bff45;border-radius:10px;background:#a66bff12;color:#d9c8ed;font-size:11px;line-height:1.7}
+.security-note b{color:#f0ddff}
+.status{backdrop-filter:blur(12px);box-shadow:0 8px 35px #0005}
+.status.is-online{color:#a9ffd1;text-shadow:0 0 14px #4be89a55}
+h1,h2{ text-wrap:balance }
+.ticker{background:linear-gradient(90deg,#d4b5ff,#a77aff,#f0c9ff,#a77aff,#d4b5ff);background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:voidTextShine 12s linear infinite}
+.cards article,.fact-card,.rule,.social-link{backdrop-filter:blur(12px);background:linear-gradient(145deg,rgba(40,23,61,.82),rgba(12,8,22,.86));border-color:#b68aff38}
+.vm-account{box-shadow:0 18px 50px #0005}
+@media(max-width:600px){.hero-actions{align-items:stretch;flex-direction:column;max-width:310px}.hero-actions button{width:100%}.hero h1{font-size:clamp(42px,12vw,62px)}}
+@media(prefers-reduced-motion:reduce){.hero h1 em,h2 em,.logo span,.ticker{animation:none}}
