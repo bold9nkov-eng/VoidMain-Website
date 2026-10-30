@@ -90,3 +90,28 @@ h1,h2{ text-wrap:balance }
 .vm-account{box-shadow:0 18px 50px #0005}
 @media(max-width:600px){.hero-actions{align-items:stretch;flex-direction:column;max-width:310px}.hero-actions button{width:100%}.hero h1{font-size:clamp(42px,12vw,62px)}}
 @media(prefers-reduced-motion:reduce){.hero h1 em,h2 em,.logo span,.ticker{animation:none}}
+
+
+/* Six selectable personal backgrounds */
+body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.96) 0%,rgba(8,5,18,.83) 36%,rgba(8,5,18,.58) 70%,rgba(8,5,18,.72) 100%),var(--void-bg-url,url("https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg"))!important;background-position:center,right 20%;background-size:cover,auto 115vh!important;transition:background-image .25s ease}
+@media(max-width:780px){body::before{background-image:linear-gradient(180deg,rgba(8,5,18,.82),rgba(8,5,18,.94) 58%,#080512 100%),var(--void-bg-url,url("https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg"))!important;background-position:center,right top;background-size:cover,auto 76vh!important}}
+.background-picker-open{border-color:#b68aff88!important;color:#f0e4ff!important;white-space:nowrap}
+.background-modal{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:#05030bea;backdrop-filter:blur(14px)}
+.background-modal.hidden{display:none!important}
+.background-dialog{width:min(900px,100%);max-height:min(850px,92vh);overflow:auto;padding:28px;background:linear-gradient(145deg,#1c112c,#090611);border:1px solid #b68aff70;border-radius:18px;box-shadow:0 25px 100px #000b,0 0 55px #9c5bff25}
+.background-dialog-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;position:relative}
+.background-dialog-head h2{font-size:clamp(25px,4vw,38px);margin:12px 0 5px}
+.background-dialog-head p{color:#b8a9ca;font-size:12px;margin:0 0 20px}
+.background-dialog-head .x{position:static;font-size:30px}
+.background-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.background-choice{padding:0;text-align:left;color:#f8f2ff;background:#100a1c;border:1px solid #b68aff35;border-radius:12px;overflow:hidden;transition:.2s}
+.background-choice:hover{transform:translateY(-3px);border-color:#d4b5ff}
+.background-choice.selected{border:2px solid #c79aff;box-shadow:0 0 25px #a66bff45}
+.background-thumb{display:block;width:100%;aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#211333}
+.background-choice-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px}
+.background-choice-meta strong{font-size:12px}
+.background-choice-meta small{font-size:9px;letter-spacing:.5px;color:#c7a5ff;white-space:nowrap}
+.background-credit{margin:18px 0 0;color:#887b99;font-size:10px;line-height:1.7}
+.background-credit a{color:#d2b5ff;text-decoration:underline}
+@media(max-width:650px){.background-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.background-dialog{padding:18px}.background-choice-meta{align-items:flex-start;flex-direction:column;gap:4px}.background-picker-open{display:block!important;padding:9px 11px;font-size:9px}}
+@media(max-width:390px){.background-choices{grid-template-columns:1fr}}
