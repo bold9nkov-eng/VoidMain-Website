@@ -47,3 +47,6 @@ body>header,body>main,body>footer{position:relative;z-index:2}
 .chat-form{display:flex;gap:9px}.chat-form input{min-width:0;flex:1;background:#090611;border:1px solid #a66bff55;border-radius:9px;padding:13px;color:white;font:inherit;font-size:13px;outline:none}.chat-form input:focus{border-color:#c49cff;box-shadow:0 0 0 3px #a66bff20}.chat-form button{min-width:48px;padding:0 16px}
 .chat-footnote{display:block;text-align:center;color:#80758d;font-size:9px;margin-top:12px}
 @media(max-width:600px){.chat-panel{height:88vh;padding:17px;border-radius:14px}.chat-top h2{font-size:21px}.chat-open{padding:10px 12px;font-size:10px}}
+
+/* Account self-service controls */
+.account-panel{margin-top:18px}.account-panel>p{font-size:12px;color:#cbb9e4;line-height:1.6}.danger-button{width:100%;margin-top:12px;padding:14px;background:#4b1429;border:1px solid #ff6b91;color:#ffdce6;font-weight:800;font-size:11px;letter-spacing:1px}.danger-button:hover{background:#70203b}.danger-button:disabled{opacity:.55;cursor:wait}.logout-button{width:100%;margin-top:10px}.account-panel #accountMessage{min-height:18px;color:#ff9db7;font-size:12px}
