@@ -31,14 +31,13 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
 /* Reliable animated VoidMain background picker */
 (()=>{
  const backgrounds=[
-  {id:"moon",name:"Лунная ночь",kind:"Аниме",url:"https://res.visualnovelgames.org/VisualNovelGames/VisualNovelGames.jpg"},
-  {id:"violet",name:"Фиолетовые цветы",kind:"Аниме",url:"https://img3.wallspic.com/crops/5/4/0/6/2/126045/126045-el_pelo_largo-animacion-ilustracion-el_manga-caricatura-3840x2160.jpg"},
-  {id:"gamer",name:"Аниме-геймер",kind:"Аниме",url:"https://img3.wallspic.com/attachments/crops/5/1/1/3/7/173115/173115-anime-linda_chica_anime-chica_gamer-chica_chica-kawaii-3840x2160.jpg"},
+  {id:"moon",name:"Лунная ночь",kind:"Аниме",url:"https://backiee.com/static/wallpapers/3840x2160/400107.jpg"},
+  {id:"violet",name:"Фиолетовые цветы",kind:"Аниме",url:"https://images.alphacoders.com/131/thumb-1920-1315438.jpg"},
+  {id:"gamer",name:"Аниме-геймер",kind:"Аниме",url:"https://images.hdqwalls.com/wallpapers/twilight-gamer-chill-in-the-city-glow-8k.jpg"},
   {id:"dream",name:"Сиреневая мечта",kind:"Аниме",url:"https://img.qimanbz.com/2025/11/honkai-star-rail-xiadie-ai-featured-800x450-1.webp"},
   {id:"butterfly",name:"Ночные бабочки",kind:"Аниме",url:"https://wallpaperbat.com/img/36426918-anime-girl-wallpaper-4k-girly.jpg"},
   {id:"whitecat",name:"Белый котик · Лаванда",kind:"Котик",url:"https://i.pinimg.com/736x/be/c5/12/bec51211272948af09daed940d4acf57.jpg"},
-  {id:"cat",name:"Котик VoidMain",kind:"Котик",url:"https://img3.wallspic.com/attachments/crops/9/1/4/2/7/172419/172419-gato-gatos_en_play_cafe-felidae-gatito-salud_del_gato-3840x2160.jpg"},
-  {id:"cybercity",name:"Неоновый мегаполис",kind:"Киберпанк",url:"https://backiee.com/static/wallpapers/1000x563/441503.jpg"},
+  {id:"cybercity",name:"Неоновый мегаполис",kind:"Киберпанк",url:"https://image.cdn2.seaart.me/2023-08-31/15879463512316933/0dd6dd4ac80d664f8951efd81114fa7f262534ed_high.webp"},
   {id:"space",name:"Космическая туманность",kind:"Космос",url:"https://assets.st-note.com/production/uploads/images/226648582/rectangle_large_type_2_57e683bee72a57c0f00aefaff212af22.png?fit=bounds&height=2000&quality=85&width=2000"},
   {id:"sakura",name:"Сакура в Киото",kind:"Природа",url:"https://aianimegenerator.io/imgs/p0-standins/g04.webp"},
   {id:"forest",name:"Тайный лес",kind:"Природа",url:"https://cdn.prod.website-files.com/6600e1eab90de089c2d9c9cd/670ef372accb6da0bd0614a2_66d7a14fce0527d9157d1cc4_66975deab122053d5e2291e5_image_f082b097_1720667147338_1024.jpeg"},
@@ -47,8 +46,8 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
  const modal=document.getElementById("backgroundModal"),grid=document.getElementById("backgroundChoices");
  if(!modal||!grid)return;
  let selected="whitecat";
- const bgVersion="whitecat-20261030-2";
- try{if(localStorage.getItem("voidmain-bg-version")!==bgVersion){localStorage.setItem("voidmain-background","whitecat");localStorage.setItem("voidmain-bg-version",bgVersion)}selected=localStorage.getItem("voidmain-background")||"whitecat"}catch{}
+ const bgVersion="background-refresh-20261030-3";
+ try{if(localStorage.getItem("voidmain-bg-version")!==bgVersion){localStorage.setItem("voidmain-background","whitecat");localStorage.setItem("voidmain-bg-version",bgVersion)}selected=localStorage.getItem("voidmain-background")||"whitecat";if(selected==="cat")selected="whitecat"}catch{}
  grid.innerHTML=backgrounds.map(x=>'<button class="background-choice" type="button" data-background="'+x.id+'" aria-pressed="false"><span class="background-thumb"><img alt="" width="480" height="270" loading="lazy" decoding="async" data-src="'+x.url+'"></span><span class="background-choice-meta"><strong>'+x.name+'</strong><small>'+(x.kind==="Котик"?"🐾 Котик":x.kind==="Аниме"?"✦ Аниме":"✧ "+x.kind)+'</small></span></button>').join("");
  function loadThumb(img){if(!img||img.src||!img.dataset.src)return;img.src=img.dataset.src;img.removeAttribute("data-src");}
  if("IntersectionObserver" in window){const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){loadThumb(e.target);io.unobserve(e.target)}}),{root:grid,rootMargin:"160px"});grid.querySelectorAll(".background-thumb img").forEach(img=>io.observe(img));}else{grid.querySelectorAll(".background-thumb img").forEach(loadThumb);}
