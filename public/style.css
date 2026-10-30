@@ -64,3 +64,6 @@ body>header,body>main,body>footer{position:relative;z-index:2}
 .vm-stats strong{display:block;margin-top:7px;color:#fff;font-size:22px}
 #vmAccountMessage{min-height:20px;color:#d8b4ff;font-size:13px}
 @media(min-width:600px){.vm-stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Live Minecraft server status */
+.status{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #ffffff20;border-radius:999px;background:#100b1bcc;letter-spacing:.4px;font-size:11px}.status.is-online{color:#9df0c2;border-color:#55d99a66;background:#12322288;box-shadow:0 0 24px #38d98a18}.status.is-offline{color:#ffabb8;border-color:#ff7b9366;background:#35131d88}
