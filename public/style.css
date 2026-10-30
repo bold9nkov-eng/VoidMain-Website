@@ -146,7 +146,7 @@ body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.94) 0%,rgba(8,5
 
 
 /* VoidMain secret hunt, anniversary and cursor sparkles */
-.rune-host{position:relative}
+.rune-host{position:relative}.sigil.rune-host{position:absolute}
 .secret-rune{position:absolute;z-index:4;right:12px;top:12px;width:34px;height:34px;border:1px solid #c39aff55;border-radius:50%;background:#160d27cc;color:#c9aaff;font-size:17px;opacity:.42;cursor:pointer;transition:.25s;box-shadow:0 0 16px #a66bff18}
 .secret-rune:hover,.secret-rune.rune-found{opacity:1;border-color:#e5cfff;color:#fff;box-shadow:0 0 22px #b68aff88;transform:rotate(18deg) scale(1.12)}
 .secret-rune.rune-found{background:#8e48d544}
