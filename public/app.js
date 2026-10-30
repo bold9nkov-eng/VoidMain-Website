@@ -37,11 +37,11 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
   {id:"dream",name:"Сиреневая мечта",kind:"Аниме",url:"https://img.qimanbz.com/2025/11/honkai-star-rail-xiadie-ai-featured-800x450-1.webp"},
   {id:"butterfly",name:"Ночные бабочки",kind:"Аниме",url:"https://wallpaperbat.com/img/36426918-anime-girl-wallpaper-4k-girly.jpg"},
   {id:"cat",name:"Котик VoidMain",kind:"Котик",url:"https://img3.wallspic.com/attachments/crops/9/1/4/2/7/172419/172419-gato-gatos_en_play_cafe-felidae-gatito-salud_del_gato-3840x2160.jpg"},
-  {id:"cybercity",name:"Неоновый мегаполис",kind:"Киберпанк",url:"https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1920&q=85"},
-  {id:"space",name:"Космическая туманность",kind:"Космос",url:"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85"},
-  {id:"sakura",name:"Сакура в Киото",kind:"Природа",url:"https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=85"},
-  {id:"forest",name:"Тайный лес",kind:"Природа",url:"https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=85"},
-  {id:"aurora",name:"Северное сияние",kind:"Сияние",url:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85"}
+  {id:"cybercity",name:"Неоновый мегаполис",kind:"Киберпанк",url:"https://backiee.com/static/wallpapers/1000x563/441503.jpg"},
+  {id:"space",name:"Космическая туманность",kind:"Космос",url:"https://assets.st-note.com/production/uploads/images/226648582/rectangle_large_type_2_57e683bee72a57c0f00aefaff212af22.png?fit=bounds&height=2000&quality=85&width=2000"},
+  {id:"sakura",name:"Сакура в Киото",kind:"Природа",url:"https://aianimegenerator.io/imgs/p0-standins/g04.webp"},
+  {id:"forest",name:"Тайный лес",kind:"Природа",url:"https://cdn.prod.website-files.com/6600e1eab90de089c2d9c9cd/670ef372accb6da0bd0614a2_66d7a14fce0527d9157d1cc4_66975deab122053d5e2291e5_image_f082b097_1720667147338_1024.jpeg"},
+  {id:"aurora",name:"Северное сияние",kind:"Сияние",url:"https://aiwallpaperarts.com/static/images/wallpapers/original/3028321.jpg"}
  ];
  const modal=document.getElementById("backgroundModal"),grid=document.getElementById("backgroundChoices");
  if(!modal||!grid)return;
