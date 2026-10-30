@@ -50,3 +50,17 @@ body>header,body>main,body>footer{position:relative;z-index:2}
 
 /* Account self-service controls */
 .account-panel{margin-top:18px}.account-panel>p{font-size:12px;color:#cbb9e4;line-height:1.6}.danger-button{width:100%;margin-top:12px;padding:14px;background:#4b1429;border:1px solid #ff6b91;color:#ffdce6;font-weight:800;font-size:11px;letter-spacing:1px}.danger-button:hover{background:#70203b}.danger-button:disabled{opacity:.55;cursor:wait}.logout-button{width:100%;margin-top:10px}.account-panel #accountMessage{min-height:18px;color:#ff9db7;font-size:12px}
+
+
+/* VoidMain linked Minecraft profile */
+.vm-account{margin:22px 0;padding:22px;border:1px solid rgba(180,120,255,.28);border-radius:18px;background:linear-gradient(145deg,rgba(88,40,130,.18),rgba(12,9,22,.7));text-align:left}
+.vm-account h3{letter-spacing:.16em;color:#d9b7ff;font-size:13px}
+.vm-account label{display:block;margin:12px 0;color:#c9bdd8}
+.vm-account input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px 14px;border:1px solid rgba(190,150,230,.3);border-radius:10px;background:#100b1b;color:#fff;font:inherit}
+.vm-account .primary{margin-top:10px}
+.vm-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.vm-stats>div{padding:14px;border:1px solid rgba(190,150,230,.18);border-radius:12px;background:rgba(255,255,255,.035)}
+.vm-stats small{display:block;color:#a99ab8;font-size:10px;letter-spacing:.12em}
+.vm-stats strong{display:block;margin-top:7px;color:#fff;font-size:22px}
+#vmAccountMessage{min-height:20px;color:#d8b4ff;font-size:13px}
+@media(min-width:600px){.vm-stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
