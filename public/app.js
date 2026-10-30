@@ -88,7 +88,7 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
 
 // Lightweight violet cursor sparkles (disabled for touch and reduced-motion users)
 (()=>{
- if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches||!("ontouchstart" in window&&navigator.maxTouchPoints>0))return;
+ if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches||("ontouchstart" in window&&navigator.maxTouchPoints>0))return;
  let last=0;
  document.addEventListener("pointermove",e=>{const now=performance.now();if(now-last<48)return;last=now;const p=document.createElement("i");p.className="void-cursor-spark";p.textContent=Math.random()>.5?"✦":"·";p.style.left=e.clientX+"px";p.style.top=e.clientY+"px";document.body.append(p);setTimeout(()=>p.remove(),700)},{passive:true});
 })();
