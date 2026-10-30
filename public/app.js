@@ -4,3 +4,7 @@ const catButton=$("#catButton"),catReveal=$("#catReveal");if(catButton)catButton
 
 // Soft futuristic UI click sound (generated in-browser; no external audio file)
 (()=>{let audio=null,last=0;function playClick(){const now=Date.now();if(now-last<55)return;last=now;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;if(!audio)audio=new Ctx();if(audio.state==="suspended")audio.resume();const t=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();osc.type="sine";osc.frequency.setValueAtTime(920,t);osc.frequency.exponentialRampToValueAtTime(560,t+.055);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.055,t+.008);gain.gain.exponentialRampToValueAtTime(.0001,t+.075);osc.connect(gain);gain.connect(audio.destination);osc.start(t);osc.stop(t+.08)}catch{}}document.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest("input,textarea,select,[contenteditable=true]"))return;playClick()},{passive:true})})();
+
+
+// Fast white click ripple
+(()=>{document.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest("input,textarea,select,[contenteditable=true]"))return;const ripple=document.createElement("span");ripple.className="click-ripple";ripple.style.left=e.clientX+"px";ripple.style.top=e.clientY+"px";document.body.appendChild(ripple);ripple.addEventListener("animationend",()=>ripple.remove(),{once:true})},{passive:true})})();
