@@ -36,13 +36,18 @@ $("#dailyRewardButton")?.addEventListener("click",async()=>{const b=$("#dailyRew
   {id:"gamer",name:"Аниме-геймер",kind:"Аниме",url:"https://img3.wallspic.com/attachments/crops/5/1/1/3/7/173115/173115-anime-linda_chica_anime-chica_gamer-chica_chica-kawaii-3840x2160.jpg"},
   {id:"dream",name:"Сиреневая мечта",kind:"Аниме",url:"https://img.qimanbz.com/2025/11/honkai-star-rail-xiadie-ai-featured-800x450-1.webp"},
   {id:"butterfly",name:"Ночные бабочки",kind:"Аниме",url:"https://wallpaperbat.com/img/36426918-anime-girl-wallpaper-4k-girly.jpg"},
-  {id:"cat",name:"Котик VoidMain",kind:"Котик",url:"https://img3.wallspic.com/attachments/crops/9/1/4/2/7/172419/172419-gato-gatos_en_play_cafe-felidae-gatito-salud_del_gato-3840x2160.jpg"}
+  {id:"cat",name:"Котик VoidMain",kind:"Котик",url:"https://img3.wallspic.com/attachments/crops/9/1/4/2/7/172419/172419-gato-gatos_en_play_cafe-felidae-gatito-salud_del_gato-3840x2160.jpg"},
+  {id:"cybercity",name:"Неоновый мегаполис",kind:"Киберпанк",url:"https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1920&q=85"},
+  {id:"space",name:"Космическая туманность",kind:"Космос",url:"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85"},
+  {id:"sakura",name:"Сакура в Киото",kind:"Природа",url:"https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=85"},
+  {id:"forest",name:"Тайный лес",kind:"Природа",url:"https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=85"},
+  {id:"aurora",name:"Северное сияние",kind:"Сияние",url:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85"}
  ];
  const modal=document.getElementById("backgroundModal"),grid=document.getElementById("backgroundChoices");
  if(!modal||!grid)return;
  let selected="moon";
  try{selected=localStorage.getItem("voidmain-background")||"moon"}catch{}
- grid.innerHTML=backgrounds.map(x=>'<button class="background-choice" type="button" data-background="'+x.id+'" aria-pressed="false"><span class="background-thumb" style="background-image:url(\u0022'+x.url+'\u0022)"></span><span class="background-choice-meta"><strong>'+x.name+'</strong><small>'+(x.kind==="Котик"?"🐾 Котик":"✦ Аниме")+'</small></span></button>').join("");
+ grid.innerHTML=backgrounds.map(x=>'<button class="background-choice" type="button" data-background="'+x.id+'" aria-pressed="false"><span class="background-thumb" style="background-image:url(\u0022'+x.url+'\u0022)"></span><span class="background-choice-meta"><strong>'+x.name+'</strong><small>'+(x.kind==="Котик"?"🐾 Котик":x.kind==="Аниме"?"✦ Аниме":"✧ "+x.kind)+'</small></span></button>').join("");
  function choose(id){const item=backgrounds.find(x=>x.id===id)||backgrounds[0];selected=item.id;document.documentElement.style.setProperty("--void-bg-url",'url("'+item.url+'")');try{localStorage.setItem("voidmain-background",selected)}catch{}grid.querySelectorAll(".background-choice").forEach(b=>{const yes=b.dataset.background===selected;b.classList.toggle("selected",yes);b.setAttribute("aria-pressed",String(yes))})}
  function open(){modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");document.body.classList.add("background-modal-open");requestAnimationFrame(()=>modal.classList.add("is-open"))}
  function close(){modal.classList.remove("is-open");modal.setAttribute("aria-hidden","true");document.body.classList.remove("background-modal-open");setTimeout(()=>modal.classList.add("hidden"),220)}
