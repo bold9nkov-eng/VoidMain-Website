@@ -1,5 +1,5 @@
 const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),crypto=require("crypto");
-const app=express(),db=new DB(path.join(__dirname,"voidmain.sqlite"));
+const app=express(),db=new DB(process.env.VOIDMAIN_DB_PATH||path.join(__dirname,"voidmain.sqlite"));
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 db.exec("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,username TEXT UNIQUE,password_hash TEXT,role TEXT DEFAULT 'player',created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS news(id INTEGER PRIMARY KEY,title TEXT,body TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS chat_messages(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, username TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS web_sessions(sid TEXT PRIMARY KEY, sess TEXT NOT NULL, expires_at INTEGER NOT NULL); CREATE INDEX IF NOT EXISTS web_sessions_expiry ON web_sessions(expires_at); CREATE TABLE IF NOT EXISTS app_secrets(name TEXT PRIMARY KEY,value TEXT NOT NULL);");
