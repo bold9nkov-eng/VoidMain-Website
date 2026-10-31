@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node server/restore.js && node server/index.js"
+    "start": "node server/index.js"
   },
   "engines": {
     "node": "22.x"
@@ -14,7 +14,6 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
-    "express-rate-limit": "^7.5.0",
-    "pg": "^8.16.3"
+    "express-rate-limit": "^7.5.0"
   }
 }
