@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS daily_claims(id INTEGER PRIMARY KEY AUTOINCREMENT, us
 CREATE INDEX IF NOT EXISTS daily_claims_queue ON daily_claims(status,id);
 CREATE TABLE IF NOT EXISTS nickname_claims(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, minecraft_name TEXT COLLATE NOCASE NOT NULL, claim_date TEXT NOT NULL, amount INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', balance_after INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, completed_at TEXT, UNIQUE(user_id,claim_date), UNIQUE(minecraft_name,claim_date));
 CREATE INDEX IF NOT EXISTS nickname_claims_queue ON nickname_claims(status,id);
+CREATE TABLE IF NOT EXISTS wheel_spins(minecraft_name TEXT PRIMARY KEY COLLATE NOCASE,last_spin_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS promo_redemptions(minecraft_name TEXT NOT NULL COLLATE NOCASE,code TEXT NOT NULL COLLATE NOCASE,amount INTEGER NOT NULL,claim_id INTEGER,created_at TEXT DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(minecraft_name,code));
 CREATE TABLE IF NOT EXISTS player_stats(user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, minecraft_name TEXT NOT NULL, playtime_ticks INTEGER NOT NULL DEFAULT 0, kills INTEGER NOT NULL DEFAULT 0, deaths INTEGER NOT NULL DEFAULT 0, points INTEGER NOT NULL DEFAULT 0, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS bridge_player_stats(uuid TEXT PRIMARY KEY, minecraft_name TEXT NOT NULL, playtime_ticks INTEGER NOT NULL DEFAULT 0, kills INTEGER NOT NULL DEFAULT 0, deaths INTEGER NOT NULL DEFAULT 0, points INTEGER NOT NULL DEFAULT 0, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE INDEX IF NOT EXISTS bridge_player_stats_playtime ON bridge_player_stats(playtime_ticks DESC);
@@ -46,6 +48,8 @@ app.use(express.static(path.join(__dirname,"../public")));
 const loginLimiter=rateLimit({windowMs:15*60*1000,limit:5,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток входа. Попробуй через 15 минут."}});
 const registerLimiter=rateLimit({windowMs:60*60*1000,limit:5,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много регистраций. Попробуй позже."}});
 const linkLimiter=rateLimit({windowMs:15*60*1000,limit:8,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток привязки. Получи новый код и попробуй позже."}});
+const wheelLimiter=rateLimit({windowMs:15*60*1000,limit:12,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток. Попробуй позже."}});
+const promoLimiter=rateLimit({windowMs:15*60*1000,limit:12,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток ввода промокода. Попробуй позже."}});
 function guestUser(minecraftName){const key=String(minecraftName).toLowerCase();let user=db.prepare("SELECT id,username FROM users WHERE username=?").get("__guest__"+key);if(!user){const result=db.prepare("INSERT INTO users(username,password_hash,role) VALUES(?,?,?)").run("__guest__"+key,crypto.randomBytes(48).toString("hex"),"player");user={id:Number(result.lastInsertRowid),username:"__guest__"+key}}return user}
 const me=req=>req.session.user,staff=(req,res,next)=>me(req)&&["owner","administrator","moderator"].includes(me(req).role)?next():res.status(403).json({error:"Недостаточно прав"});
 function createLoginSession(req,user,res){req.session.regenerate(err=>{if(err)return res.status(500).json({error:"Не удалось создать защищённую сессию"});req.session.user={id:user.id,username:user.username,role:user.role};req.session.save(err=>{if(err)return res.status(500).json({error:"Не удалось сохранить сессию"});res.json({user:req.session.user})})})}
@@ -62,6 +66,68 @@ const SECRET_SYMBOLS=["moon","star","crystal","key","crown"];
 app.get("/api/secret-quest",(req,res)=>{const minecraftName=String(req.query.minecraftName||"").trim();if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});const user=guestUser(minecraftName);const row=db.prepare("SELECT symbols,reward_claimed FROM secret_quest_progress WHERE user_id=?").get(user.id);let found=[];try{found=JSON.parse(row?.symbols||"[]")}catch{}res.set("Cache-Control","no-store");res.json({found:found.filter(x=>SECRET_SYMBOLS.includes(x)),total:SECRET_SYMBOLS.length,completed:found.length===SECRET_SYMBOLS.length,claimed:!!row?.reward_claimed})});
 app.post("/api/secret-quest/find",(req,res)=>{const minecraftName=String(req.body.minecraftName||"").trim(),symbol=String(req.body.symbol||"");if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});if(!SECRET_SYMBOLS.includes(symbol))return res.status(400).json({error:"Неизвестный символ"});try{const user=guestUser(minecraftName),row=db.prepare("SELECT symbols,reward_claimed FROM secret_quest_progress WHERE user_id=?").get(user.id);let found=[];try{found=JSON.parse(row?.symbols||"[]")}catch{}if(!found.includes(symbol))found.push(symbol);db.prepare("INSERT INTO secret_quest_progress(user_id,symbols,minecraft_name) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET symbols=excluded.symbols,minecraft_name=excluded.minecraft_name").run(user.id,JSON.stringify(found),minecraftName);res.json({found,total:SECRET_SYMBOLS.length,completed:found.length===SECRET_SYMBOLS.length,claimed:!!row?.reward_claimed})}catch(e){res.status(500).json({error:"Не удалось сохранить найденный символ"})}});
 app.post("/api/secret-quest/claim",(req,res)=>{const minecraftName=String(req.body.minecraftName||"").trim();if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});try{const result=db.transaction(()=>{const user=guestUser(minecraftName),row=db.prepare("SELECT symbols,reward_claimed FROM secret_quest_progress WHERE user_id=?").get(user.id);let found=[];try{found=JSON.parse(row?.symbols||"[]")}catch{}if(SECRET_SYMBOLS.some(x=>!found.includes(x)))throw Error("Сначала найди все 5 символов.");if(row?.reward_claimed)throw Error("Ты уже получил награду за этот квест.");db.prepare("INSERT INTO nickname_claims(user_id,minecraft_name,claim_date,amount,status) VALUES(?,?,?,10,'pending')").run(user.id,minecraftName,"VOIDMAIN_SECRET_V1");db.prepare("UPDATE secret_quest_progress SET reward_claimed=1,minecraft_name=?,claimed_at=CURRENT_TIMESTAMP WHERE user_id=?").run(minecraftName,user.id);return minecraftName})();res.json({ok:true,pending:true,amount:10,minecraftName:result,message:"Поздравляем! Заявка на 10 VoidCoin создана для "+result+". Зайди на сервер под этим ником — плагин начислит награду."})}catch(e){if(String(e.message).includes("UNIQUE"))return res.status(409).json({error:"Награда уже была оформлена для этого Minecraft-ника."});res.status(400).json({error:e.message||"Не удалось оформить награду"})}});
+
+
+const WHEEL_COOLDOWN_MS=48*60*60*1000;
+const WHEEL_TOTAL_WEIGHT=195;
+const WHEEL_REWARDS=[{label:"Ничего",amount:0,weight:80},{label:"1 VoidCoin",amount:1,weight:50},{label:"2 VoidCoin",amount:2,weight:40},{label:"5 VoidCoin",amount:5,weight:20},{label:"10 VoidCoin",amount:10,weight:5}];
+const PROMO_CODES={VOIDMINE:5,NEZOX:2,MONE:2,METTROLKA:2};
+app.get("/api/wheel/status",wheelLimiter,(req,res)=>{
+ const minecraftName=String(req.query.minecraftName||"").trim();
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
+ const row=db.prepare("SELECT last_spin_at FROM wheel_spins WHERE minecraft_name=?").get(minecraftName);
+ const now=Date.now(),availableAt=row?row.last_spin_at+WHEEL_COOLDOWN_MS:0;
+ res.set("Cache-Control","no-store");
+ res.json({available:now>=availableAt,availableAt,remainingMs:Math.max(0,availableAt-now)});
+});
+app.post("/api/wheel/spin",wheelLimiter,(req,res)=>{
+ const minecraftName=String(req.body.minecraftName||"").trim();
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
+ try{
+  const result=db.transaction(()=>{
+   const now=Date.now(),row=db.prepare("SELECT last_spin_at FROM wheel_spins WHERE minecraft_name=?").get(minecraftName);
+   const availableAt=row?row.last_spin_at+WHEEL_COOLDOWN_MS:0;
+   if(now<availableAt)throw Error("WAIT:"+availableAt);
+   const roll=crypto.randomInt(WHEEL_TOTAL_WEIGHT);
+   let cursor=0,prize=WHEEL_REWARDS[0];
+   for(const item of WHEEL_REWARDS){cursor+=item.weight;if(roll<cursor){prize=item;break}}
+   db.prepare("INSERT INTO wheel_spins(minecraft_name,last_spin_at) VALUES(?,?) ON CONFLICT(minecraft_name) DO UPDATE SET last_spin_at=excluded.last_spin_at").run(minecraftName,now);
+   let claimId=null;
+   if(prize.amount>0){
+    const user=guestUser(minecraftName);
+    const claimDate="WHEEL:"+now;
+    claimId=Number(db.prepare("INSERT INTO nickname_claims(user_id,minecraft_name,claim_date,amount,status) VALUES(?,?,?,?,'pending')").run(user.id,minecraftName,claimDate,prize.amount).lastInsertRowid);
+   }
+   return {label:prize.label,amount:prize.amount,claimId,spunAt:now,availableAt:now+WHEEL_COOLDOWN_MS};
+  })();
+  res.set("Cache-Control","no-store");
+  res.json({ok:true,...result,pending:!!result.amount,message:result.amount?"Выпало "+result.amount+" VoidCoin! Награда отправлена на сервер.":"В этот раз ничего не выпало. Новая попытка через 48 часов."});
+ }catch(e){
+  if(String(e.message).startsWith("WAIT:"))return res.status(429).json({error:"Следующая попытка будет доступна позже.",availableAt:Number(String(e.message).slice(5))});
+  if(String(e.message).includes("UNIQUE"))return res.status(409).json({error:"Эта попытка уже обработана."});
+  res.status(500).json({error:"Не удалось прокрутить колесо. Попробуй позже."});
+ }
+});
+app.post("/api/promo/redeem",promoLimiter,(req,res)=>{
+ const minecraftName=String(req.body.minecraftName||"").trim(),code=String(req.body.code||"").trim().toUpperCase();
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
+ if(!/^[A-Z0-9]{3,24}$/.test(code)||!Object.prototype.hasOwnProperty.call(PROMO_CODES,code))return res.status(400).json({error:"Такого промокода нет или он введён неверно."});
+ const amount=PROMO_CODES[code];
+ try{
+  const claim=db.transaction(()=>{
+   const user=guestUser(minecraftName);
+   const claimDate="PROMO:"+code;
+   const info=db.prepare("INSERT INTO nickname_claims(user_id,minecraft_name,claim_date,amount,status) VALUES(?,?,?,?,'pending')").run(user.id,minecraftName,claimDate,amount);
+   const claimId=Number(info.lastInsertRowid);
+   db.prepare("INSERT INTO promo_redemptions(minecraft_name,code,amount,claim_id) VALUES(?,?,?,?)").run(minecraftName,code,amount,claimId);
+   return claimId;
+  })();
+  res.json({ok:true,pending:true,amount,claimId:claim,message:"Промокод активирован! "+amount+" VoidCoin отправлены в очередь выдачи для "+minecraftName+". Зайди на сервер под этим ником."});
+ }catch(e){
+  if(String(e.message).includes("UNIQUE"))return res.status(409).json({error:"Этот промокод уже активировали для данного Minecraft-ника."});
+  res.status(500).json({error:"Не удалось активировать промокод. Попробуй позже."});
+ }
+});
 
 const bridgeSecret=()=>process.env.VOIDMAIN_BRIDGE_SECRET||"";
 function bridgeAuth(req,res,next){const expected=bridgeSecret(),provided=req.get("x-bridge-secret")||"";if(!expected||provided.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(provided),Buffer.from(expected)))return res.status(401).json({error:"Bridge authentication failed"});next()}
