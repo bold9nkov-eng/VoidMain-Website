@@ -165,7 +165,11 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  const tracks=[
   {name:"01 · Neon Portal — Synthwave",bpm:118,wave:"sawtooth",lead:[523,659,784,659,587,698,880,698,523,659,784,988,880,784,659,587],bass:[131,131,165,165,110,110,147,147],chords:[262,330,392,330,294,370,440,370],style:"bright"},
   {name:"02 · Lumi's Dream — Chill",bpm:82,wave:"triangle",lead:[392,0,494,587,0,494,440,0,392,0,330,392,0,440,494,0],bass:[110,0,165,0,98,0,147,0],chords:[220,262,330,392,196,247,294,370],style:"soft"},
-  {name:"03 · Void Drift — Dark Pulse",bpm:104,wave:"square",lead:[110,0,110,165,0,147,110,0,98,0,147,196,0,165,147,0],bass:[55,55,55,82,49,49,73,73],chords:[110,165,220,165,98,147,196,147],style:"dark"}
+  {name:"03 · Void Drift — Dark Pulse",bpm:104,wave:"square",lead:[110,0,110,165,0,147,110,0,98,0,147,196,0,165,147,0],bass:[55,55,55,82,49,49,73,73],chords:[110,165,220,165,98,147,196,147],style:"dark"},
+  {name:"04 · Starlight Run — Future Bass",bpm:126,wave:"sawtooth",lead:[659,0,784,988,784,0,659,587,523,0,659,784,880,784,659,0],bass:[82,82,110,110,73,73,98,98],chords:[330,392,494,392,294,370,440,370],style:"bright"},
+  {name:"05 · Lavender Rain — Dream Ambient",bpm:74,wave:"triangle",lead:[523,0,659,0,784,659,0,523,440,0,587,0,698,587,0,440],bass:[65,0,82,0,55,0,73,0],chords:[262,330,392,494,220,277,330,440],style:"soft"},
+  {name:"06 · Eclipse Drive — Cyber Night",bpm:112,wave:"square",lead:[147,0,196,220,0,165,147,0,123,0,165,220,247,0,196,165],bass:[49,49,73,73,55,55,82,82],chords:[147,196,247,196,123,165,220,165],style:"dark"}
+
  ];
  let ctx=null,master=null,compressor=null,playing=false,track=0,step=0,timer=null;
  const play=$("#musicPlay"),name=$("#musicTrackName"),visual=$("#musicVisual"),volume=$("#musicVolume"),volumeValue=$("#musicVolumeValue");
