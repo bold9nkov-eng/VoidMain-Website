@@ -21,8 +21,6 @@ CREATE TABLE IF NOT EXISTS daily_claims(id INTEGER PRIMARY KEY AUTOINCREMENT, us
 CREATE INDEX IF NOT EXISTS daily_claims_queue ON daily_claims(status,id);
 CREATE TABLE IF NOT EXISTS nickname_claims(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, minecraft_name TEXT COLLATE NOCASE NOT NULL, claim_date TEXT NOT NULL, amount INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', balance_after INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, completed_at TEXT, UNIQUE(user_id,claim_date), UNIQUE(minecraft_name,claim_date));
 CREATE INDEX IF NOT EXISTS nickname_claims_queue ON nickname_claims(status,id);
-CREATE TABLE IF NOT EXISTS wheel_spins(minecraft_name TEXT PRIMARY KEY COLLATE NOCASE,last_spin_at INTEGER NOT NULL);
-CREATE TABLE IF NOT EXISTS promo_redemptions(minecraft_name TEXT NOT NULL COLLATE NOCASE,code TEXT NOT NULL COLLATE NOCASE,amount INTEGER NOT NULL,claim_id INTEGER,created_at TEXT DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(minecraft_name,code));
 CREATE TABLE IF NOT EXISTS player_stats(user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, minecraft_name TEXT NOT NULL, playtime_ticks INTEGER NOT NULL DEFAULT 0, kills INTEGER NOT NULL DEFAULT 0, deaths INTEGER NOT NULL DEFAULT 0, points INTEGER NOT NULL DEFAULT 0, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS bridge_player_stats(uuid TEXT PRIMARY KEY, minecraft_name TEXT NOT NULL, playtime_ticks INTEGER NOT NULL DEFAULT 0, kills INTEGER NOT NULL DEFAULT 0, deaths INTEGER NOT NULL DEFAULT 0, points INTEGER NOT NULL DEFAULT 0, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE INDEX IF NOT EXISTS bridge_player_stats_playtime ON bridge_player_stats(playtime_ticks DESC);
