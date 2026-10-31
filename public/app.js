@@ -139,37 +139,3 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  claim.addEventListener("click",async e=>{e.preventDefault();e.stopPropagation();if(!currentNick){showNickForm();return}claim.disabled=true;message.textContent="Оформляем награду…";try{const r=await fetch("/api/secret-quest/claim",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:currentNick})}),d=await r.json();if(!r.ok)throw Error(d.error);message.textContent=d.message;claim.textContent="ЗАЯВКА ОТПРАВЛЕНА";await load()}catch(e){message.textContent=e.message;claim.disabled=false}});
  load();
 })();
-
-
-/* First-night checklist — progress is saved locally on this device */
-(()=>{
- const root=document.getElementById("firstNightTasks");
- if(!root)return;
- const checks=[...root.querySelectorAll('input[type="checkbox"]')];
- const count=document.getElementById("firstNightCount");
- const bar=document.getElementById("firstNightBar");
- const message=document.getElementById("firstNightMessage");
- const reset=document.getElementById("firstNightReset");
- const key="voidmain-first-night-v1";
- let done=[];
- try{const saved=JSON.parse(localStorage.getItem(key)||"[]");if(Array.isArray(saved))done=saved.filter(x=>checks.some(c=>c.value===x))}catch{}
- function paint(){
-  checks.forEach(c=>{c.checked=done.includes(c.value);c.closest(".first-night-task")?.classList.toggle("is-done",c.checked)});
-  const total=checks.length,finished=done.length,percent=total?finished/total*100:0;
-  count.textContent=finished+" / "+total;
-  bar.style.width=percent+"%";
-  message.textContent=finished===total?"✦ Отличная работа! Ты готов к новым приключениям в VoidMain 💜":finished?"Уже "+finished+" шагов позади. Продолжай!":"Каждый большой проект начинается с первого шага.";
-  try{localStorage.setItem(key,JSON.stringify(done))}catch{}
- }
- root.addEventListener("change",e=>{
-  const c=e.target.closest('input[type="checkbox"]');if(!c)return;
-  done=c.checked?[...new Set([...done,c.value])]:done.filter(x=>x!==c.value);
-  paint();
- });
- reset?.addEventListener("click",()=>{
-  done=[];
-  paint();
-  if(typeof toast==="function")toast("Прогресс чек-листа сброшен");
- });
- paint();
-})();
