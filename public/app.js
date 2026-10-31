@@ -256,7 +256,7 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
 })();
 
 
-/* Full-screen VOIDMAIN logo entrance with purple particles */
+/* Full-screen VOIDMAIN intro: 3-second title hold, cinematic sound, then logo landing */
 (()=>{
  const target=document.querySelector(".portal-wordmark");
  if(!target||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -265,20 +265,43 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  const overlay=document.createElement("div");overlay.id="voidmain-intro";overlay.setAttribute("aria-label","VOIDMAIN");
  const word=document.createElement("div");word.className="intro-word";word.textContent="VOIDMAIN";overlay.append(word);
  const ring=document.createElement("div");ring.className="intro-ring";overlay.append(ring);
- for(let i=0;i<42;i++){
+ for(let i=0;i<56;i++){
   const p=document.createElement("i");p.className="intro-particle";
-  const angle=(Math.PI*2*i/42)+(Math.random()-.5)*.22;
-  const distance=90+Math.random()*Math.min(innerWidth,innerHeight)*.38;
+  const angle=(Math.PI*2*i/56)+(Math.random()-.5)*.22;
+  const distance=90+Math.random()*Math.min(innerWidth,innerHeight)*.42;
   p.style.setProperty("--dx",Math.cos(angle)*distance+"px");
   p.style.setProperty("--dy",Math.sin(angle)*distance+"px");
-  p.style.setProperty("--size",(1.5+Math.random()*3.5)+"px");
-  p.style.setProperty("--delay",(Math.random()*.22)+"s");
+  p.style.setProperty("--size",(1.5+Math.random()*4)+"px");
+  p.style.setProperty("--delay",(Math.random()*.45)+"s");
   overlay.append(p);
  }
  document.body.append(overlay);target.classList.add("intro-pending");
  document.documentElement.style.overflow="hidden";
+ let soundPlayed=false;
+ function playIntroSound(){
+  if(soundPlayed)return;
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  try{
+   const ctx=new AudioCtx();
+   const run=()=>{
+    if(soundPlayed)return;soundPlayed=true;
+    const now=ctx.currentTime,master=ctx.createGain();master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.24,now+.12);master.gain.exponentialRampToValueAtTime(.0001,now+1.65);master.connect(ctx.destination);
+    const low=ctx.createOscillator(),lowGain=ctx.createGain();low.type="sawtooth";low.frequency.setValueAtTime(48,now);low.frequency.exponentialRampToValueAtTime(115,now+.75);low.frequency.exponentialRampToValueAtTime(62,now+1.55);lowGain.gain.value=.24;low.connect(lowGain);lowGain.connect(master);low.start(now);low.stop(now+1.7);
+    const shine=ctx.createOscillator(),shineGain=ctx.createGain();shine.type="sine";shine.frequency.setValueAtTime(440,now+.08);shine.frequency.exponentialRampToValueAtTime(990,now+.72);shine.frequency.exponentialRampToValueAtTime(520,now+1.45);shineGain.gain.setValueAtTime(.0001,now);shineGain.gain.exponentialRampToValueAtTime(.12,now+.2);shineGain.gain.exponentialRampToValueAtTime(.0001,now+1.5);shine.connect(shineGain);shineGain.connect(master);shine.start(now);shine.stop(now+1.55);
+    const length=Math.floor(ctx.sampleRate*.85),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);
+    const noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),noiseGain=ctx.createGain();noise.buffer=buffer;filter.type="lowpass";filter.frequency.setValueAtTime(1800,now);filter.frequency.exponentialRampToValueAtTime(500,now+.8);noiseGain.gain.setValueAtTime(.0001,now);noiseGain.gain.exponentialRampToValueAtTime(.09,now+.16);noiseGain.gain.exponentialRampToValueAtTime(.0001,now+.88);noise.connect(filter);filter.connect(noiseGain);noiseGain.connect(master);noise.start(now);
+    setTimeout(()=>ctx.close().catch(()=>{}),2200);
+   };
+   if(ctx.state==="running")run();else ctx.resume().then(run).catch(()=>{});
+  }catch{}
+ }
+ playIntroSound();
+ const unlockSound=()=>{if(!soundPlayed)playIntroSound()};
+ window.addEventListener("pointerdown",unlockSound,{once:true,passive:true});
+ window.addEventListener("keydown",unlockSound,{once:true});
  const finish=()=>{target.classList.remove("intro-pending");overlay.classList.add("is-leaving");document.documentElement.style.overflow="";setTimeout(()=>overlay.remove(),520)};
- const start=()=>{const a=word.getBoundingClientRect(),b=target.getBoundingClientRect();
+ const start=()=>{
+  const a=word.getBoundingClientRect(),b=target.getBoundingClientRect();
   const dx=(b.left+b.width/2)-(innerWidth/2),dy=(b.top+b.height/2)-(innerHeight/2);
   const scale=Math.max(.035,Math.min(b.width/a.width,b.height/a.height));
   const motion=word.animate([
@@ -288,5 +311,5 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
   ],{duration:1550,easing:"cubic-bezier(.16,1,.3,1)",fill:"forwards"});
   motion.finished.catch(()=>{}).then(()=>{target.animate([{opacity:0,filter:"blur(5px)"},{opacity:1,filter:"blur(0)"}],{duration:360,easing:"ease-out",fill:"forwards"});finish()});
  };
- requestAnimationFrame(()=>requestAnimationFrame(start));
+ setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(start)),3000);
 })();
