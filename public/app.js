@@ -216,6 +216,79 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  });
 })();
 
+
+/* Lumi: feeding and harmless cartoon bonks — six reactions each */
+(()=>{
+ const reveal=document.querySelector("#catReveal"),art=reveal?.querySelector(".cat-art-wrap"),purr=document.querySelector("#catPurr");
+ const feed=document.querySelector("#feedCat"),boop=document.querySelector("#boopCat");
+ if(!art||!feed||!boop)return;
+ const style=document.createElement("style");
+ style.textContent=`
+ .lumi-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:18px auto 4px}
+ .lumi-actions button{min-width:155px}
+ .lumi-feed-btn{border-color:#d6a4ff88!important;background:linear-gradient(135deg,#7040a0aa,#26153ddd)!important}
+ .lumi-boop-btn{border-color:#ffb2d866!important;background:linear-gradient(135deg,#713b65aa,#26152ddd)!important}
+ .lumi-prop{position:absolute;z-index:5;left:50%;top:65%;font-size:34px;line-height:1;pointer-events:none;filter:drop-shadow(0 4px 8px #0008);animation:lumiFoodFly 1.25s cubic-bezier(.2,.75,.25,1) both}
+ @keyframes lumiFoodFly{0%{opacity:0;transform:translate(-145px,55px) scale(.35) rotate(-35deg)}25%{opacity:1;transform:translate(-85px,15px) scale(1.2) rotate(15deg)}65%{opacity:1;transform:translate(-5px,-42px) scale(.9) rotate(0)}100%{opacity:0;transform:translate(10px,-55px) scale(.2)}}
+ .lumi-hit-effect{position:absolute;z-index:6;left:50%;top:27%;font-size:38px;pointer-events:none;animation:lumiImpact .75s ease-out both;filter:drop-shadow(0 0 12px #e8caff)}
+ @keyframes lumiImpact{0%{opacity:0;transform:translate(-50%,20px) scale(.2) rotate(-25deg)}35%{opacity:1;transform:translate(-50%,-8px) scale(1.25) rotate(12deg)}100%{opacity:0;transform:translate(-50%,-38px) scale(.7) rotate(25deg)}}
+ @keyframes lumiFeed1{0%,100%{transform:translateY(0)}35%{transform:translateY(-13px) rotate(-5deg)}65%{transform:translateY(2px) rotate(3deg)}}
+ @keyframes lumiFeed2{0%,100%{transform:rotate(0)}30%{transform:rotate(8deg)}65%{transform:rotate(-8deg)}}
+ @keyframes lumiFeed3{0%,100%{transform:scale(1)}35%{transform:scale(1.09,.93)}70%{transform:scale(.96,1.06)}}
+ @keyframes lumiFeed4{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+ @keyframes lumiFeed5{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-20px) scale(1.04)}70%{transform:translateY(0) scale(.97)}}
+ @keyframes lumiFeed6{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-6deg) scale(1.05)}50%{transform:rotate(6deg) scale(1.08)}75%{transform:rotate(0) scale(1)}}
+ @keyframes lumiBoop1{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-9px) rotate(-3deg)}40%,80%{transform:translateX(9px) rotate(3deg)}}
+ @keyframes lumiBoop2{0%,100%{transform:translateY(0)}30%{transform:translateY(-17px) rotate(7deg)}65%{transform:translateY(0) rotate(-4deg)}}
+ @keyframes lumiBoop3{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}50%{transform:rotate(10deg)}75%{transform:rotate(-5deg)}}
+ @keyframes lumiBoop4{0%,100%{transform:scale(1)}35%{transform:scale(.9,1.08)}65%{transform:scale(1.07,.94)}}
+ @keyframes lumiBoop5{0%,100%{transform:translate(0,0)}25%{transform:translate(-8px,-8px)}50%{transform:translate(8px,0)}75%{transform:translate(-4px,4px)}}
+ @keyframes lumiBoop6{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(14deg) scale(.94)}55%{transform:rotate(-12deg) scale(1.04)}80%{transform:rotate(4deg)}}
+ ${[1,2,3,4,5,6].map(n=>'.cat-art-wrap.lumi-feed-'+n+'{animation:lumiFeed'+n+' .95s ease}').join('')}
+ ${[1,2,3,4,5,6].map(n=>'.cat-art-wrap.lumi-boop-'+n+'{animation:lumiBoop'+n+' .72s ease}').join('')}
+ @media(max-width:520px){.lumi-actions{flex-direction:column;align-items:stretch;max-width:260px}.lumi-actions button{width:100%}}
+ @media(prefers-reduced-motion:reduce){.lumi-prop,.lumi-hit-effect{animation:none;opacity:0}}
+ `;
+ document.head.appendChild(style);
+ const foods=["🐟","🍗","🥛","🍤","🐠","🍪"];
+ const feedLines=[
+  "Луми поймал рыбку и довольно хрустит! 🐟",
+  "Вкусная курочка! Луми довольно машет хвостиком 🍗",
+  "Молочко? Это его любимое! 🥛",
+  "Креветка исчезла за секунду! 🍤",
+  "Рыбка для пушистого хранителя! Луми счастлив 🐠",
+  "Печенька — маленькая вкусняшка для Луми 🍪"
+ ];
+ const feedNames=["feed-1","feed-2","feed-3","feed-4","feed-5","feed-6"];
+ const boopNames=["boop-1","boop-2","boop-3","boop-4","boop-5","boop-6"];
+ const boopLines=[
+  "Ой! Луми удивлённо подпрыгнул, но совсем не обиделся 😹",
+  "Буп! Луми покачал головой и посмотрел на тебя 💫",
+  "Луми сделал смешной поворот — вот это неожиданность!",
+  "Пух! Шёрстка взъерошилась, но настроение отличное ✨",
+  "Луми спрятался за лапками и выглянул обратно 🙈",
+  "Кажется, Луми решил ответить тебе танцем! 🐾"
+ ];
+ let lastFeed=-1,lastBoop=-1;
+ function play(type,names,message,effect){
+  const last=type==="feed"?lastFeed:lastBoop;
+  let n=Math.floor(Math.random()*6);if(n===last)n=(n+1+Math.floor(Math.random()*5))%6;
+  if(type==="feed")lastFeed=n;else lastBoop=n;
+  art.classList.remove(...feedNames.map(x=>"lumi-"+x),...boopNames.map(x=>"lumi-"+x));
+  void art.offsetWidth;art.classList.add("lumi-"+names[n]);
+  if(type==="feed"){
+   const item=document.createElement("span");item.className="lumi-prop";item.textContent=foods[n];art.appendChild(item);setTimeout(()=>item.remove(),1350);
+  }else{
+   const hit=document.createElement("span");hit.className="lumi-hit-effect";hit.textContent=effect[n];art.appendChild(hit);setTimeout(()=>hit.remove(),850);
+  }
+  purr.textContent=message[n];
+  purr.classList.remove("lumi-message","message-violet","message-white","message-pink");void purr.offsetWidth;
+  purr.classList.add("lumi-message",n%3===0?"message-white":n%3===1?"message-violet":"message-pink");
+ }
+ feed.addEventListener("click",()=>play("feed",feedNames,feedLines));
+ boop.addEventListener("click",()=>play("boop",boopNames,boopLines,["💥","✨","💫","⭐","😵‍💫","💖"]));
+})();
+
 /* Five-symbol quest — Minecraft nickname only, no website account required */
 (()=>{
  const section=document.querySelector("#secret-quest");if(!section)return;
