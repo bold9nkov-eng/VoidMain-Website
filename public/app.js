@@ -111,12 +111,46 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  update();
 })();
 
-/* Lumi button handlers */
+/* Lumi button handlers: eight different petting reactions */
 (()=>{
  const reveal=document.querySelector("#catReveal");
  const show=document.querySelector("#catButton");
  const pet=document.querySelector("#petCat");
  const purr=document.querySelector("#catPurr");
+ const art=reveal?.querySelector(".cat-art-wrap");
+ const animations=["bounce","wiggle","stretch","turn","happy","sway","hop","sparkle"];
+ const lines=[
+  "Мр-р-р… Луми довольно мурлычет 💜",
+  "Луми трётся о твою руку и довольно жмурится ✨",
+  "Луми перевернулся на спинку — почеши животик! ☾",
+  "Луми подпрыгнул от радости! 💫",
+  "Луми машет хвостиком и посылает тебе звёздочку ⭐",
+  "Луми потягивается, будто только что проснулся…",
+  "Луми довольно крутится на месте! 🐾",
+  "Луми засиял от счастья. Кажется, ты его любимый гость! 💜"
+ ];
+ const style=document.createElement("style");
+ style.textContent=`
+ @keyframes lumiBounce{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-24px) scale(1.04,.96)}60%{transform:translateY(0) scale(.96,1.05)}}
+ @keyframes lumiWiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-13deg)}40%{transform:rotate(11deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
+ @keyframes lumiStretch{0%,100%{transform:scale(1)}35%{transform:scale(1.14,.86)}65%{transform:scale(.9,1.12)}}
+ @keyframes lumiTurn{0%{transform:rotate(0) scale(1)}45%{transform:rotate(190deg) scale(.82)}100%{transform:rotate(360deg) scale(1)}}
+ @keyframes lumiHappy{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-12px) rotate(-8deg)}50%{transform:translateY(0) rotate(8deg)}75%{transform:translateY(-7px) rotate(-5deg)}}
+ @keyframes lumiSway{0%,100%{transform:rotate(0) translateX(0)}30%{transform:rotate(9deg) translateX(8px)}70%{transform:rotate(-9deg) translateX(-8px)}}
+ @keyframes lumiHop{0%,100%{transform:translateY(0) scaleX(1)}25%{transform:translateY(-32px) scaleX(.9)}50%{transform:translateY(0) scaleX(1.12)}75%{transform:translateY(-14px) scaleX(.96)}}
+ @keyframes lumiSparkle{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 #c99aff)}40%{transform:scale(1.13) rotate(-5deg);filter:drop-shadow(0 0 18px #d8a8ff)}70%{transform:scale(.96) rotate(5deg);filter:drop-shadow(0 0 24px #fff)}}
+ .cat-art-wrap.lumi-anim-bounce{animation:lumiBounce .9s ease}
+ .cat-art-wrap.lumi-anim-wiggle{animation:lumiWiggle .85s ease}
+ .cat-art-wrap.lumi-anim-stretch{animation:lumiStretch 1s ease}
+ .cat-art-wrap.lumi-anim-turn{animation:lumiTurn 1.05s ease}
+ .cat-art-wrap.lumi-anim-happy{animation:lumiHappy 1s ease}
+ .cat-art-wrap.lumi-anim-sway{animation:lumiSway 1.15s ease}
+ .cat-art-wrap.lumi-anim-hop{animation:lumiHop 1.05s ease}
+ .cat-art-wrap.lumi-anim-sparkle{animation:lumiSparkle 1.1s ease}
+ #catPurr{min-height:1.5em}
+ `;
+ document.head.appendChild(style);
+ let previous=-1;
  show?.addEventListener("click",()=>{
   if(!reveal)return;
   reveal.classList.remove("hidden");
@@ -126,8 +160,15 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  });
  pet?.addEventListener("click",()=>{
   if(!purr)return;
-  const lines=["Мр-р-р… Луми довольно мурлычет 💜","Луми трётся о твою руку ✨","Луми дарит тебе лунную удачу ☾"];
-  purr.textContent=lines[Math.floor(Math.random()*lines.length)];
+  let next=Math.floor(Math.random()*animations.length);
+  if(next===previous)next=(next+1+Math.floor(Math.random()*(animations.length-1)))%animations.length;
+  previous=next;
+  if(art){
+   art.classList.remove(...animations.map(x=>"lumi-anim-"+x));
+   void art.offsetWidth;
+   art.classList.add("lumi-anim-"+animations[next]);
+  }
+  purr.textContent=lines[next];
  });
 })();
 
@@ -168,7 +209,11 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
   {name:"03 · Void Drift — Dark Pulse",bpm:104,wave:"square",lead:[110,0,110,165,0,147,110,0,98,0,147,196,0,165,147,0],bass:[55,55,55,82,49,49,73,73],chords:[110,165,220,165,98,147,196,147],style:"dark"},
   {name:"04 · Starlight Run — Future Bass",bpm:126,wave:"sawtooth",lead:[659,0,784,988,784,0,659,587,523,0,659,784,880,784,659,0],bass:[82,82,110,110,73,73,98,98],chords:[330,392,494,392,294,370,440,370],style:"bright"},
   {name:"05 · Lavender Rain — Dream Ambient",bpm:74,wave:"triangle",lead:[523,0,659,0,784,659,0,523,440,0,587,0,698,587,0,440],bass:[65,0,82,0,55,0,73,0],chords:[262,330,392,494,220,277,330,440],style:"soft"},
-  {name:"06 · Eclipse Drive — Cyber Night",bpm:112,wave:"square",lead:[147,0,196,220,0,165,147,0,123,0,165,220,247,0,196,165],bass:[49,49,73,73,55,55,82,82],chords:[147,196,247,196,123,165,220,165],style:"dark"}
+  {name:"06 · Eclipse Drive — Cyber Night",bpm:112,wave:"square",lead:[147,0,196,220,0,165,147,0,123,0,165,220,247,0,196,165],bass:[49,49,73,73,55,55,82,82],chords:[147,196,247,196,123,165,220,165],style:"dark"},
+  {name:"07 · Moonlit Garden — Fantasy",bpm:88,wave:"triangle",lead:[659,0,784,880,0,784,659,0,587,0,659,784,0,880,784,0],bass:[110,0,147,0,98,0,131,0],chords:[220,262,330,392,196,247,294,370],style:"soft"},
+  {name:"08 · Pixel Hearts — Chiptune",bpm:138,wave:"square",lead:[784,659,784,988,880,784,659,587,659,784,880,1047,988,880,784,659],bass:[98,98,131,131,110,110,147,147],chords:[392,494,587,494,330,392,494,392],style:"bright"},
+  {name:"09 · Aurora Waves — Floating Ambient",bpm:68,wave:"sine",lead:[440,0,523,0,659,0,523,0,392,0,494,0,587,0,494,0],bass:[55,0,82,0,65,0,73,0],chords:[220,262,330,392,196,247,294,370],style:"soft"},
+  {name:"10 · Midnight Run — Dark Electro",bpm:122,wave:"sawtooth",lead:[165,0,220,247,0,196,165,0,147,0,196,247,294,0,247,220],bass:[55,55,82,82,49,49,73,73],chords:[165,220,262,220,147,196,247,196],style:"dark"}
 
  ];
  let ctx=null,master=null,compressor=null,playing=false,track=0,step=0,timer=null;
