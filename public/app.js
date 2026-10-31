@@ -459,3 +459,52 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  };
  setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(start)),2500);
 })();
+
+
+/* VoidMain shop order form */
+(()=>{
+ const form=$("#shopOrderForm");if(!form)return;
+ const product=$("#shopProduct"),amount=$("#shopCoinsAmount"),amountLabel=$("#shopCoinsValue"),total=$("#shopTotal"),message=$("#shopMessage"),submit=$("#shopSubmit");
+ const rankPrices={flower:30,harley:40,media:50,division:60,shining:70,void:100};
+ function current(){
+  const v=product.value;
+  if(v==="coins")return {price:Number(amount.value),coins:Number(amount.value),type:"coins",key:"coins"};
+  if(v.startsWith("rank:")){const key=v.split(":")[1];return {price:rankPrices[key],type:"rank",key};}
+  return {price:v==="custom_rank"?150:v==="custom_title"?30:250,type:v,key:v};
+ }
+ function refresh(){
+  const v=product.value,coin=v==="coins",rank=v==="custom_rank",title=v==="custom_title",skin=v==="item_skin";
+  $("#shopCoinsFields").classList.toggle("hidden",!coin);
+  $("#shopCustomRank").classList.toggle("hidden",!rank);
+  $("#shopCustomTitle").classList.toggle("hidden",!title);
+  $("#shopSkinFields").classList.toggle("hidden",!skin);
+  const p=current();if(coin)amountLabel.textContent=p.price+" ₽ · "+p.coins+" VoidCoin";
+  total.textContent=p.price+" ₽";
+ }
+ product.addEventListener("change",refresh);amount.addEventListener("input",refresh);
+ document.querySelectorAll("[data-shop-product]").forEach(b=>b.addEventListener("click",()=>{
+  product.value=b.dataset.shopProduct;refresh();$("#shopOrderForm").scrollIntoView({behavior:"smooth",block:"center"});
+ }));
+ refresh();
+ form.addEventListener("submit",async e=>{
+  e.preventDefault();message.textContent="";
+  const minecraftName=$("#shopMinecraftName").value.trim(),p=current(),payload={minecraftName,type:p.type,productKey:p.key,amountRub:p.price,details:""};
+  if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName)){message.textContent="Проверь Minecraft-ник.";return;}
+  if(p.type==="custom_rank")payload.details=$("#shopRankName").value.trim();
+  if(p.type==="custom_title")payload.details=$("#shopTitleName").value.trim();
+  if(p.type==="item_skin"){
+   payload.details=$("#shopSkinItem").value.trim();
+   const file=$("#shopSkinImage").files[0];
+   if(!file){message.textContent="Прикрепи изображение текстуры.";return;}
+   if(file.size>1024*1024){message.textContent="Файл должен быть меньше 1 МБ.";return;}
+   if(!["image/png","image/jpeg","image/webp"].includes(file.type)){message.textContent="Поддерживаются PNG, JPG и WEBP.";return;}
+   payload.imageData=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
+  }
+  submit.disabled=true;message.textContent="Сохраняем заявку…";
+  try{
+   const r=await fetch("/api/shop/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+   const d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось создать заявку");
+   message.textContent=d.message;form.reset();product.value="coins";amount.value="100";refresh();
+  }catch(err){message.textContent=err.message;}finally{submit.disabled=false;}
+ });
+})();
