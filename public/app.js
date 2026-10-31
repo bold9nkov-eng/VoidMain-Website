@@ -111,6 +111,26 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  update();
 })();
 
+/* Lumi button handlers */
+(()=>{
+ const reveal=document.querySelector("#catReveal");
+ const show=document.querySelector("#catButton");
+ const pet=document.querySelector("#petCat");
+ const purr=document.querySelector("#catPurr");
+ show?.addEventListener("click",()=>{
+  if(!reveal)return;
+  reveal.classList.remove("hidden");
+  show.textContent="ЛУМИ НАЙДЕН! ✨";
+  show.disabled=true;
+  reveal.scrollIntoView({behavior:"smooth",block:"center"});
+ });
+ pet?.addEventListener("click",()=>{
+  if(!purr)return;
+  const lines=["Мр-р-р… Луми довольно мурлычет 💜","Луми трётся о твою руку ✨","Луми дарит тебе лунную удачу ☾"];
+  purr.textContent=lines[Math.floor(Math.random()*lines.length)];
+ });
+})();
+
 /* Five-symbol quest — Minecraft nickname only, no website account required */
 (()=>{
  const section=document.querySelector("#secret-quest");if(!section)return;
