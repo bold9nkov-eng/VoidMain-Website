@@ -139,3 +139,78 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  claim.addEventListener("click",async e=>{e.preventDefault();e.stopPropagation();if(!currentNick){showNickForm();return}claim.disabled=true;message.textContent="Оформляем награду…";try{const r=await fetch("/api/secret-quest/claim",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:currentNick})}),d=await r.json();if(!r.ok)throw Error(d.error);message.textContent=d.message;claim.textContent="ЗАЯВКА ОТПРАВЛЕНА";await load()}catch(e){message.textContent=e.message;claim.disabled=false}});
  load();
 })();
+
+
+/* Void Hub interactions: wheel, promo codes, original synth music and preferences */
+(()=>{
+ const nick=$("#hubMinecraftName"),wheel=$("#wheelSpin"),wheelMessage=$("#wheelMessage"),countdown=$("#wheelCountdown"),disc=$("#wheelDisc");
+ const promoForm=$("#promoForm"),promoCode=$("#promoCode"),promoMessage=$("#promoMessage"),promoSubmit=$("#promoSubmit");
+ const nickKey="voidmain-minecraft-nick";
+ try{const saved=localStorage.getItem(nickKey)||localStorage.getItem("voidmain-chat-nick")||"";if(nick&&saved)nick.value=saved}catch{}
+ function saveNick(){const value=nick?.value.trim()||"";if(!/^[A-Za-z0-9_]{3,16}$/.test(value))return "";try{localStorage.setItem(nickKey,value);localStorage.setItem("voidmain-chat-nick",value)}catch{}return value}
+ let wheelAvailableAt=0,wheelAllowed=false,wheelBusy=false,rotation=0;
+ function clock(ms){const total=Math.max(0,Math.ceil(ms/1000)),d=Math.floor(total/86400),h=Math.floor(total%86400/3600),m=Math.floor(total%3600/60),s=total%60;return (d?d+"д ":"")+(h?String(h).padStart(2,"0")+":":"00:")+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+ function paintCountdown(){if(!countdown)return;if(!wheelAvailableAt){countdown.textContent="Попытка будет доступна после ввода ника.";return}const left=wheelAvailableAt-Date.now();if(left<=0){countdown.textContent="✦ Колесо снова доступно!";wheelAllowed=true;if(wheel&&!wheelBusy)wheel.disabled=false}else{countdown.textContent="Следующая попытка через "+clock(left);wheelAllowed=false;if(wheel)wheel.disabled=true}}
+ async function checkWheel(){const name=saveNick();if(!name){if(wheelMessage)wheelMessage.textContent="Введи Minecraft-ник, чтобы проверить попытку.";wheelAllowed=false;if(wheel)wheel.disabled=true;wheelAvailableAt=0;paintCountdown();return}try{const r=await fetch("/api/wheel/status?minecraftName="+encodeURIComponent(name),{cache:"no-store"}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось проверить колесо");wheelAvailableAt=Number(d.availableAt)||0;wheelAllowed=!!d.available;if(wheelMessage)wheelMessage.textContent=d.available?"Твоя попытка готова. Удачи!":"Ты уже крутил колесо.";paintCountdown()}catch(e){if(wheelMessage)wheelMessage.textContent=e.message}}
+ nick?.addEventListener("change",()=>{checkWheel();if(promoMessage)promoMessage.textContent=""});
+ nick?.addEventListener("blur",()=>{if(nick.value.trim())checkWheel()});
+ setInterval(paintCountdown,1000);
+ const prizeAngles={0:73.846,1:193.846,2:276.923,5:332.308,10:355.385};
+ wheel?.addEventListener("click",async()=>{
+  const name=saveNick();if(!name){wheelMessage.textContent="Сначала введи Minecraft-ник.";nick?.focus();return}
+  if(wheelBusy)return;
+  if(!wheelAllowed){await checkWheel();paintCountdown();return}
+  wheelBusy=true;wheel.disabled=true;wheelMessage.textContent="Колесо вращается…";
+  try{
+   const r=await fetch("/api/wheel/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:name})}),d=await r.json();
+   if(!r.ok){if(d.availableAt)wheelAvailableAt=Number(d.availableAt);throw Error(d.error||"Не удалось прокрутить колесо")}
+   wheelAvailableAt=Number(d.availableAt)||Date.now()+172800000;wheelAllowed=false;
+   const center=prizeAngles[Number(d.amount)]??prizeAngles[0];rotation+=360*6+(360-center);
+   disc.style.transform="rotate("+rotation+"deg)";
+   setTimeout(()=>{wheelMessage.textContent=d.amount>0?"✦ Выпало "+d.amount+" VoidCoin! Награда поставлена в очередь выдачи на сервер.":"В этот раз ничего не выпало. Попробуй снова через 48 часов.";wheelBusy=false;paintCountdown()},6300);
+  }catch(e){wheelMessage.textContent=e.message;wheelBusy=false;paintCountdown();if(wheelAllowed)wheel.disabled=false}
+ });
+ promoForm?.addEventListener("submit",async e=>{
+  e.preventDefault();const name=saveNick(),code=promoCode.value.trim();if(!name){promoMessage.textContent="Сначала введи Minecraft-ник выше.";nick?.focus();return}if(!code){promoMessage.textContent="Введи промокод.";return}
+  promoSubmit.disabled=true;promoMessage.textContent="Проверяем промокод…";
+  try{const r=await fetch("/api/promo/redeem",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:name,code})}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось активировать код");promoMessage.textContent=d.message;promoCode.value=""}
+  catch(e){promoMessage.textContent=e.message}
+  finally{promoSubmit.disabled=false}
+ });
+ if(nick?.value)checkWheel();
+})();
+
+(()=>{
+ const tracks=[
+  {name:"01 · Neon Portal",notes:[261.63,392,523.25,392,329.63,440,587.33,440,293.66,440,587.33,440,349.23,523.25,659.25,523.25]},
+  {name:"02 · Lumi's Dream",notes:[220,277.18,329.63,415.3,329.63,277.18,246.94,329.63,196,246.94,293.66,369.99,293.66,246.94,220,293.66]},
+  {name:"03 · Void Drift",notes:[174.61,261.63,349.23,261.63,196,293.66,392,293.66,164.81,246.94,329.63,246.94,185,277.18,370,277.18]}
+ ];
+ let ctx=null,master=null,playing=false,track=0,step=0,timer=null;
+ const play=$("#musicPlay"),name=$("#musicTrackName"),visual=$("#musicVisual"),volume=$("#musicVolume"),volumeValue=$("#musicVolumeValue");
+ function setup(){const C=window.AudioContext||window.webkitAudioContext;if(!C)throw Error("Браузер не поддерживает Web Audio");if(!ctx){ctx=new C();master=ctx.createGain();master.gain.value=(Number(volume?.value)||25)/100*.22;master.connect(ctx.destination)}if(ctx.state==="suspended")ctx.resume()}
+ function note(freq,duration){const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(freq,now);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.12,now+.035);g.gain.exponentialRampToValueAtTime(.0001,now+duration);o.connect(g);g.connect(master);o.start(now);o.stop(now+duration+.02);const bass=ctx.createOscillator(),bg=ctx.createGain();bass.type="triangle";bass.frequency.setValueAtTime(freq/2,now);bg.gain.setValueAtTime(.0001,now);bg.gain.exponentialRampToValueAtTime(.035,now+.04);bg.gain.exponentialRampToValueAtTime(.0001,now+duration);bass.connect(bg);bg.connect(master);bass.start(now);bass.stop(now+duration+.02)}
+ function tick(){const seq=tracks[track].notes;note(seq[step%seq.length],.38);step++}
+ function paint(){if(name)name.textContent=tracks[track].name;if(play){play.textContent=playing?"Ⅱ":"▶";play.setAttribute("aria-label",playing?"Пауза":"Воспроизвести")}visual?.classList.toggle("is-playing",playing)}
+ function stop(){playing=false;if(timer)clearInterval(timer);timer=null;paint()}
+ function start(){try{setup();if(playing)return;playing=true;tick();timer=setInterval(tick,470);paint()}catch(e){if(name)name.textContent=e.message}}
+ play?.addEventListener("click",()=>playing?stop():start());
+ $("#musicNext")?.addEventListener("click",()=>{track=(track+1)%tracks.length;step=0;paint();if(playing)tick()});
+ $("#musicPrev")?.addEventListener("click",()=>{track=(track+tracks.length-1)%tracks.length;step=0;paint();if(playing)tick()});
+ volume?.addEventListener("input",()=>{const n=Number(volume.value);if(volumeValue)volumeValue.textContent=n+"%";if(master)master.gain.setTargetAtTime(n/100*.22,ctx.currentTime,.04)});
+ paint();
+})();
+
+(()=>{
+ const key="voidmain-site-preferences",accent=$("#accentSelect"),cursor=$("#cursorToggle"),animations=$("#animationToggle"),reset=$("#customReset");
+ let prefs={accent:"purple",cursor:true,animations:true};
+ try{const saved=JSON.parse(localStorage.getItem(key)||"{}");prefs={...prefs,...saved}}catch{}
+ function apply(){document.body.dataset.accent=prefs.accent;document.body.classList.toggle("no-animations",!prefs.animations);if(accent)accent.value=prefs.accent;if(cursor)cursor.checked=prefs.cursor;if(animations)animations.checked=prefs.animations;let aura=document.getElementById("cursorAura");if(!aura){aura=document.createElement("div");aura.id="cursorAura";document.body.append(aura)}aura.classList.toggle("active",!!prefs.cursor)}
+ function save(){try{localStorage.setItem(key,JSON.stringify(prefs))}catch{}apply()}
+ accent?.addEventListener("change",()=>{prefs.accent=accent.value;save()});
+ cursor?.addEventListener("change",()=>{prefs.cursor=cursor.checked;save()});
+ animations?.addEventListener("change",()=>{prefs.animations=animations.checked;save()});
+ reset?.addEventListener("click",()=>{prefs={accent:"purple",cursor:true,animations:true};save();if(typeof toast==="function")toast("Настройки VoidMain сброшены")});
+ document.addEventListener("pointermove",e=>{const aura=document.getElementById("cursorAura");if(aura&&prefs.cursor){aura.style.left=e.clientX+"px";aura.style.top=e.clientY+"px"}},{passive:true});
+ apply();
+})();
