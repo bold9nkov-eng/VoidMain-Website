@@ -254,3 +254,39 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  document.addEventListener("pointermove",e=>{const aura=document.getElementById("cursorAura");if(aura&&prefs.cursor){aura.style.left=e.clientX+"px";aura.style.top=e.clientY+"px"}},{passive:true});
  apply();
 })();
+
+
+/* Full-screen VOIDMAIN logo entrance with purple particles */
+(()=>{
+ const target=document.querySelector(".portal-wordmark");
+ if(!target||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ let prefs={};try{prefs=JSON.parse(localStorage.getItem("voidmain-site-preferences")||"{}")}catch{}
+ if(prefs.animations===false)return;
+ const overlay=document.createElement("div");overlay.id="voidmain-intro";overlay.setAttribute("aria-label","VOIDMAIN");
+ const word=document.createElement("div");word.className="intro-word";word.textContent="VOIDMAIN";overlay.append(word);
+ const ring=document.createElement("div");ring.className="intro-ring";overlay.append(ring);
+ for(let i=0;i<42;i++){
+  const p=document.createElement("i");p.className="intro-particle";
+  const angle=(Math.PI*2*i/42)+(Math.random()-.5)*.22;
+  const distance=90+Math.random()*Math.min(innerWidth,innerHeight)*.38;
+  p.style.setProperty("--dx",Math.cos(angle)*distance+"px");
+  p.style.setProperty("--dy",Math.sin(angle)*distance+"px");
+  p.style.setProperty("--size",(1.5+Math.random()*3.5)+"px");
+  p.style.setProperty("--delay",(Math.random()*.22)+"s");
+  overlay.append(p);
+ }
+ document.body.append(overlay);target.classList.add("intro-pending");
+ document.documentElement.style.overflow="hidden";
+ const finish=()=>{target.classList.remove("intro-pending");overlay.classList.add("is-leaving");document.documentElement.style.overflow="";setTimeout(()=>overlay.remove(),520)};
+ const start=()=>{const a=word.getBoundingClientRect(),b=target.getBoundingClientRect();
+  const dx=(b.left+b.width/2)-(innerWidth/2),dy=(b.top+b.height/2)-(innerHeight/2);
+  const scale=Math.max(.035,Math.min(b.width/a.width,b.height/a.height));
+  const motion=word.animate([
+   {transform:"translate(-50%,-50%) scale(1)",filter:"brightness(1.25)",opacity:1},
+   {transform:"translate(calc(-50% + "+(dx*.78)+"px),calc(-50% + "+(dy*.78)+"px)) scale("+(scale*1.12)+")",offset:.78,filter:"brightness(1.8)",opacity:1},
+   {transform:"translate(calc(-50% + "+dx+"px),calc(-50% + "+dy+"px)) scale("+scale+")",filter:"brightness(1)",opacity:.12}
+  ],{duration:1550,easing:"cubic-bezier(.16,1,.3,1)",fill:"forwards"});
+  motion.finished.catch(()=>{}).then(()=>{target.animate([{opacity:0,filter:"blur(5px)"},{opacity:1,filter:"blur(0)"}],{duration:360,easing:"ease-out",fill:"forwards"});finish()});
+ };
+ requestAnimationFrame(()=>requestAnimationFrame(start));
+})();
