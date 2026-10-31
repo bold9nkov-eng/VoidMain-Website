@@ -6,7 +6,7 @@ const hasPersistentDisk=fs.existsSync(path.dirname(renderDiskPath));
 // Render Free has no persistent disk. Fall back to /tmp so the site can start;
 // data in /tmp is temporary and may be cleared when the instance restarts.
 const databasePath=persistentDatabasePath||(production?(hasPersistentDisk?renderDiskPath:"/tmp/voidmain.sqlite"):path.join(__dirname,"voidmain.sqlite"));
-if(production&&!persistentDatabasePath&&!hasPersistentDisk)console.warn("Render Persistent Disk not found; using temporary /tmp/voidmain.sqlite. Database data may be lost after a restart or redeploy.");
+if(production&&!persistentDatabasePath&&!hasPersistentDisk)console.warn("Render Persistent Disk not found; using /tmp/voidmain.sqlite with Neon database snapshots enabled.");
 const app=express(),db=new DB(databasePath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
