@@ -296,3 +296,14 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 .secret-room{max-width:560px;margin:0 auto;padding:34px 24px;border:1px solid rgba(190,143,255,.4);border-radius:22px;background:linear-gradient(145deg,rgba(61,34,88,.7),rgba(14,9,25,.94));box-shadow:0 0 55px rgba(150,91,255,.18)}
 .secret-room-mark{font-size:38px;color:#d8b5ff;text-shadow:0 0 25px #a76bff}.secret-room h3{margin:12px 0}.secret-room strong{display:block;margin:22px;color:#e1c7ff;font-size:30px;letter-spacing:2px}.secret-room button{margin:8px auto}.secret-room p{color:#c4b5d5;line-height:1.7}
 @media(max-width:600px){.secret-quest{padding:76px 20px}.secret-slots{gap:7px}.secret-slots span{width:45px;height:45px;font-size:20px}.secret-sigil{width:30px;height:30px}.sigil-1{right:5%;top:15%}}
+
+/* Secret quest nickname entry — deliberately separate from website account UI */
+.secret-nick-entry{display:none;max-width:520px;margin:22px auto;padding:18px;border:1px solid rgba(185,133,255,.3);border-radius:16px;background:rgba(20,12,34,.72);text-align:left}
+.secret-nick-entry.is-visible{display:block;animation:secretNickIn .22s ease-out}
+.secret-nick-entry label{display:block;margin-bottom:9px;color:#d8baff;font-size:11px;font-weight:800;letter-spacing:1.5px}
+.secret-nick-row{display:flex;gap:9px}
+.secret-nick-row input{min-width:0;flex:1;padding:13px 14px;border:1px solid rgba(190,150,255,.28);border-radius:10px;background:#100b1b;color:#fff;font:inherit}
+.secret-nick-row button{white-space:nowrap}
+.secret-nick-entry small{display:block;margin-top:9px;color:#b9a9ca;font-size:12px}
+@keyframes secretNickIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:520px){.secret-nick-row{flex-direction:column}.secret-nick-row button{width:100%}}
