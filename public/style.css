@@ -230,3 +230,31 @@ body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.94) 0%,rgba(8,5
 #modal>.dialog::-webkit-scrollbar-track{background:#160d25;border-radius:8px}
 #modal>.dialog::-webkit-scrollbar-thumb{background:#8d4bce;border-radius:8px}
 @media(max-width:600px){#modal{padding:10px}#modal>.dialog{max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:24px 20px}}
+
+/* VoidMain newcomer guide and FAQ */
+.start-guide{position:relative;padding:100px 9%;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,#302044 0%,#100a19 56%,#090611 100%);border-block:1px solid #b68aff35}
+.start-guide:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.18;background-image:radial-gradient(#d7baff 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,black,transparent 78%)}
+.start-guide>small,.start-guide>h2,.start-guide>.start-intro,.start-steps,.faq-wrap{position:relative}
+.start-intro{max-width:600px;color:#c8b8d8;line-height:1.8;margin:12px 0 30px}
+.start-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.start-step{position:relative;min-width:0;padding:26px 22px 22px;border:1px solid #b68aff42;border-radius:18px;background:linear-gradient(145deg,#21152fee,#110c1bee);box-shadow:0 18px 45px #0003,inset 0 1px #fff1;transition:transform .25s,border-color .25s}
+.start-step:hover{transform:translateY(-5px);border-color:#c69affaa}
+.step-number{position:absolute;right:18px;top:15px;color:#a98acb66;font-size:12px;font-weight:800;letter-spacing:2px}
+.step-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#a66bff20;border:1px solid #c39aff40;color:#e6d3ff;font-size:24px;box-shadow:0 0 24px #a66bff20}
+.start-step h3{font-size:13px;letter-spacing:1px;color:#f0e7fb;margin:20px 0 10px}
+.start-step p{font-size:12px;line-height:1.8;color:#bbaaca;margin:0}
+.start-step p b{color:#e3cfff}
+.server-address{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:18px;padding:9px 10px;border:1px solid #c39aff33;border-radius:10px;background:#09061199}
+.server-address code{min-width:0;overflow-wrap:anywhere;color:#e2cfff;font-size:11px}
+.mini-copy{flex:none;padding:8px 10px!important;font-size:9px!important;letter-spacing:.7px}
+.faq-wrap{max-width:850px;margin:76px auto 0}
+.faq-heading{margin-bottom:20px}.faq-heading small{color:#c6a4f1;letter-spacing:2px;font-size:10px}.faq-heading h3{font-size:clamp(22px,3vw,32px);margin:10px 0;color:#f3eaff}
+.faq-item{margin:9px 0;border:1px solid #b68aff35;border-radius:13px;background:#160f22cc;overflow:hidden;transition:border-color .2s}
+.faq-item[open]{border-color:#b68aff88}
+.faq-item summary{position:relative;list-style:none;cursor:pointer;padding:18px 48px 18px 18px;color:#eee4fa;font-size:13px;font-weight:700}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);color:#d7baff;font-size:22px;font-weight:400}
+.faq-item[open] summary:after{content:"−"}
+.faq-item p{margin:0;padding:0 18px 18px;color:#bdaecc;font-size:12px;line-height:1.8}
+@media(max-width:760px){.start-guide{padding:72px 6%}.start-steps{grid-template-columns:1fr}.start-step{padding:22px}.faq-wrap{margin-top:55px}}
+@media(prefers-reduced-motion:reduce){.start-step{transition:none}}
