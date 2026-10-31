@@ -149,18 +149,12 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  .cat-art-wrap.lumi-anim-sparkle{animation:lumiSparkle 1.1s ease}
 
  /* Lumi feels alive: breathing, blinking, ear twitches and a swishing tail */
- @keyframes lumiBlinkTop{0%,90%,100%{transform:translateY(0)}92%{transform:translateY(12px)}94%{transform:translateY(12px)}96%{transform:translateY(0)}}
- @keyframes lumiBlinkBottom{0%,90%,100%{transform:translateY(0)}92%{transform:translateY(-12px)}94%{transform:translateY(-12px)}96%{transform:translateY(0)}}
  @keyframes lumiEarLeft{0%,84%,100%{transform:rotate(0)}88%{transform:rotate(-13deg)}93%{transform:rotate(5deg)}}
  @keyframes lumiEarRight{0%,76%,100%{transform:rotate(0)}80%{transform:rotate(12deg)}85%{transform:rotate(-5deg)}}
  @keyframes lumiTail{0%,100%{transform:rotate(0)}25%{transform:rotate(17deg)}55%{transform:rotate(-12deg)}78%{transform:rotate(11deg)}}
  @keyframes lumiBreathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.012)}}
  @keyframes lumiTalk{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1.18)}}
  .moon-cat-art{overflow:visible;animation:lumiBreathe 3.1s ease-in-out infinite}
- .lumi-lid-top,.lumi-lid-bottom{transform-box:fill-box;transform-origin:center;will-change:transform}
- .lumi-lid-top{animation:lumiBlinkTop 5.8s ease-in-out infinite}
- .lumi-lid-bottom{animation:lumiBlinkBottom 5.8s ease-in-out infinite}
- .lumi-eye-right .lumi-lid-top,.lumi-eye-right .lumi-lid-bottom{animation-delay:.025s}
  .lumi-ear{transform-box:fill-box;transform-origin:50% 100%}
  .lumi-ear-left{animation:lumiEarLeft 6.2s ease-in-out infinite}
  .lumi-ear-right{animation:lumiEarRight 7.1s ease-in-out infinite}
@@ -168,12 +162,10 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  .lumi-mouth-open,.lumi-mouth-tongue{opacity:0;transform-box:fill-box;transform-origin:center}
  .cat-art-wrap.lumi-talking .lumi-mouth-closed{opacity:0}
  .cat-art-wrap.lumi-talking .lumi-mouth-open{opacity:1;animation:lumiTalk .22s ease-in-out infinite alternate}
- .lumi-mouth-tongue{display:none!important}
- .cat-art-wrap.lumi-talking .lumi-lid-top,.cat-art-wrap.lumi-talking .lumi-lid-bottom{animation-duration:4.8s}
  .cat-art-wrap.lumi-talking .lumi-tail{animation-duration:.48s}
  .cat-art-wrap.lumi-talking .lumi-ear-left{animation-duration:.65s}
  .cat-art-wrap.lumi-talking .lumi-ear-right{animation-duration:.8s}
- @media(prefers-reduced-motion:reduce){.moon-cat-art,.lumi-lid-top,.lumi-lid-bottom,.lumi-ear,.lumi-tail{animation:none!important}}
+ @media(prefers-reduced-motion:reduce){.moon-cat-art,.lumi-ear,.lumi-tail{animation:none!important}}
  #catPurr{min-height:1.7em;margin:16px auto 4px;max-width:560px;font-weight:700;line-height:1.5;opacity:0;transform:translateY(9px) scale(.97);transition:opacity .25s ease,transform .25s ease}
  #catPurr.lumi-message{opacity:1;transform:translateY(0) scale(1);animation:lumiMessageIn .65s cubic-bezier(.2,.8,.2,1) both}
  #catPurr.message-violet{background:linear-gradient(90deg,#fff 0%,#d9b5ff 25%,#a96cff 50%,#fff 75%,#c49aff 100%);background-size:220% auto;background-clip:text;-webkit-background-clip:text;color:transparent;animation:lumiMessageIn .65s ease both,lumiTextShine 3.4s linear infinite}
