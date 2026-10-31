@@ -1,5 +1,8 @@
-const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),crypto=require("crypto");
-const app=express(),db=new DB(process.env.VOIDMAIN_DB_PATH||path.join(__dirname,"voidmain.sqlite"));
+const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),fs=require("fs"),crypto=require("crypto");
+const production=process.env.NODE_ENV==="production";
+const databasePath=process.env.VOIDMAIN_DB_PATH||(production?"/var/data/voidmain.sqlite":path.join(__dirname,"voidmain.sqlite"));
+if(production&&!fs.existsSync(path.dirname(databasePath)))throw new Error("Persistent database directory is missing: "+path.dirname(databasePath)+". Attach a Render Persistent Disk at /var/data and set VOIDMAIN_DB_PATH=/var/data/voidmain.sqlite.");
+const app=express(),db=new DB(databasePath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 db.exec("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,username TEXT UNIQUE,password_hash TEXT,role TEXT DEFAULT 'player',created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS news(id INTEGER PRIMARY KEY,title TEXT,body TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS chat_messages(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, username TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP); CREATE TABLE IF NOT EXISTS web_sessions(sid TEXT PRIMARY KEY, sess TEXT NOT NULL, expires_at INTEGER NOT NULL); CREATE INDEX IF NOT EXISTS web_sessions_expiry ON web_sessions(expires_at); CREATE TABLE IF NOT EXISTS app_secrets(name TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS secret_quest_progress(user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, symbols TEXT NOT NULL DEFAULT '[]', reward_claimed INTEGER NOT NULL DEFAULT 0, minecraft_name TEXT, claimed_at TEXT);");
@@ -21,7 +24,6 @@ CREATE TABLE IF NOT EXISTS bridge_server_state(id INTEGER PRIMARY KEY CHECK(id=1
 INSERT OR IGNORE INTO bridge_server_state(id,connected,version,online,max_players,updated_at) VALUES(1,0,'Paper 1.21.11',NULL,NULL,CURRENT_TIMESTAMP);
 `);
 
-const production=process.env.NODE_ENV==="production";
 let sessionSecret=process.env.SESSION_SECRET;
 if(!sessionSecret){const saved=db.prepare("SELECT value FROM app_secrets WHERE name='session_secret'").get();sessionSecret=saved?.value;if(!sessionSecret){sessionSecret=crypto.randomBytes(48).toString("hex");db.prepare("INSERT INTO app_secrets(name,value) VALUES('session_secret',?)").run(sessionSecret)}} 
 app.set("trust proxy",1);
