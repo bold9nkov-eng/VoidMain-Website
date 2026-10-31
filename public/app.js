@@ -147,6 +147,30 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  .cat-art-wrap.lumi-anim-sway{animation:lumiSway 1.15s ease}
  .cat-art-wrap.lumi-anim-hop{animation:lumiHop 1.05s ease}
  .cat-art-wrap.lumi-anim-sparkle{animation:lumiSparkle 1.1s ease}
+
+ /* Lumi feels alive: breathing, blinking, ear twitches and a swishing tail */
+ @keyframes lumiBlink{0%,89%,100%{transform:scaleY(0)}92%,95%{transform:scaleY(1)}}
+ @keyframes lumiEarLeft{0%,84%,100%{transform:rotate(0)}88%{transform:rotate(-13deg)}93%{transform:rotate(5deg)}}
+ @keyframes lumiEarRight{0%,76%,100%{transform:rotate(0)}80%{transform:rotate(12deg)}85%{transform:rotate(-5deg)}}
+ @keyframes lumiTail{0%,100%{transform:rotate(0)}25%{transform:rotate(17deg)}55%{transform:rotate(-12deg)}78%{transform:rotate(11deg)}}
+ @keyframes lumiBreathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.012)}}
+ @keyframes lumiTalk{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1.18)}}
+ .moon-cat-art{overflow:visible;animation:lumiBreathe 3.1s ease-in-out infinite}
+ .lumi-eyelid{transform-box:fill-box;transform-origin:center;animation:lumiBlink 5.4s ease-in-out infinite}
+ .lumi-eye-right .lumi-eyelid{animation-delay:.08s}
+ .lumi-ear{transform-box:fill-box;transform-origin:50% 100%}
+ .lumi-ear-left{animation:lumiEarLeft 6.2s ease-in-out infinite}
+ .lumi-ear-right{animation:lumiEarRight 7.1s ease-in-out infinite}
+ .lumi-tail{transform-box:fill-box;transform-origin:100% 50%;animation:lumiTail 2.2s ease-in-out infinite}
+ .lumi-mouth-open,.lumi-mouth-tongue{opacity:0;transform-box:fill-box;transform-origin:center}
+ .cat-art-wrap.lumi-talking .lumi-mouth-closed{opacity:0}
+ .cat-art-wrap.lumi-talking .lumi-mouth-open{opacity:1;animation:lumiTalk .22s ease-in-out infinite alternate}
+ .cat-art-wrap.lumi-talking .lumi-mouth-tongue{opacity:1}
+ .cat-art-wrap.lumi-talking .lumi-eyelid{animation-duration:1.2s}
+ .cat-art-wrap.lumi-talking .lumi-tail{animation-duration:.48s}
+ .cat-art-wrap.lumi-talking .lumi-ear-left{animation-duration:.65s}
+ .cat-art-wrap.lumi-talking .lumi-ear-right{animation-duration:.8s}
+ @media(prefers-reduced-motion:reduce){.moon-cat-art,.lumi-eyelid,.lumi-ear,.lumi-tail{animation:none!important}}
  #catPurr{min-height:1.5em}
  `;
  document.head.appendChild(style);
@@ -167,6 +191,13 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
    art.classList.remove(...animations.map(x=>"lumi-anim-"+x));
    void art.offsetWidth;
    art.classList.add("lumi-anim-"+animations[next]);
+  }
+  if(art){
+   art.classList.remove("lumi-talking");
+   void art.offsetWidth;
+   art.classList.add("lumi-talking");
+   clearTimeout(art._lumiTalkTimer);
+   art._lumiTalkTimer=setTimeout(()=>art.classList.remove("lumi-talking"),1500);
   }
   purr.textContent=lines[next];
  });
