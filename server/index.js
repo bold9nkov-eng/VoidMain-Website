@@ -68,11 +68,13 @@ app.post("/api/secret-quest/find",(req,res)=>{const minecraftName=String(req.bod
 app.post("/api/secret-quest/claim",(req,res)=>{const minecraftName=String(req.body.minecraftName||"").trim();if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});try{const result=db.transaction(()=>{const user=guestUser(minecraftName),row=db.prepare("SELECT symbols,reward_claimed FROM secret_quest_progress WHERE user_id=?").get(user.id);let found=[];try{found=JSON.parse(row?.symbols||"[]")}catch{}if(SECRET_SYMBOLS.some(x=>!found.includes(x)))throw Error("Сначала найди все 5 символов.");if(row?.reward_claimed)throw Error("Ты уже получил награду за этот квест.");db.prepare("INSERT INTO nickname_claims(user_id,minecraft_name,claim_date,amount,status) VALUES(?,?,?,10,'pending')").run(user.id,minecraftName,"VOIDMAIN_SECRET_V1");db.prepare("UPDATE secret_quest_progress SET reward_claimed=1,minecraft_name=?,claimed_at=CURRENT_TIMESTAMP WHERE user_id=?").run(minecraftName,user.id);return minecraftName})();res.json({ok:true,pending:true,amount:10,minecraftName:result,message:"Поздравляем! Заявка на 10 VoidCoin создана для "+result+". Зайди на сервер под этим ником — плагин начислит награду."})}catch(e){if(String(e.message).includes("UNIQUE"))return res.status(409).json({error:"Награда уже была оформлена для этого Minecraft-ника."});res.status(400).json({error:e.message||"Не удалось оформить награду"})}});
 
 
+const rewardsStorageReady=!production||!!persistentDatabasePath||hasPersistentDisk;
 const WHEEL_COOLDOWN_MS=48*60*60*1000;
 const WHEEL_TOTAL_WEIGHT=195;
 const WHEEL_REWARDS=[{label:"Ничего",amount:0,weight:80},{label:"1 VoidCoin",amount:1,weight:50},{label:"2 VoidCoin",amount:2,weight:40},{label:"5 VoidCoin",amount:5,weight:20},{label:"10 VoidCoin",amount:10,weight:5}];
 const PROMO_CODES={VOIDMINE:5,NEZOX:2,MONE:2,METTROLKA:2};
 app.get("/api/wheel/status",wheelLimiter,(req,res)=>{
+ if(!rewardsStorageReady)return res.status(503).json({error:"Колесо временно отключено: для защиты попыток нужно подключить постоянное хранилище Render."});
  const minecraftName=String(req.query.minecraftName||"").trim();
  if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
  const row=db.prepare("SELECT last_spin_at FROM wheel_spins WHERE minecraft_name=?").get(minecraftName);
@@ -81,6 +83,7 @@ app.get("/api/wheel/status",wheelLimiter,(req,res)=>{
  res.json({available:now>=availableAt,availableAt,remainingMs:Math.max(0,availableAt-now)});
 });
 app.post("/api/wheel/spin",wheelLimiter,(req,res)=>{
+ if(!rewardsStorageReady)return res.status(503).json({error:"Колесо временно отключено: для защиты попыток нужно подключить постоянное хранилище Render."});
  const minecraftName=String(req.body.minecraftName||"").trim();
  if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
  try{
@@ -109,6 +112,7 @@ app.post("/api/wheel/spin",wheelLimiter,(req,res)=>{
  }
 });
 app.post("/api/promo/redeem",promoLimiter,(req,res)=>{
+ if(!rewardsStorageReady)return res.status(503).json({error:"Промокоды временно отключены: для защиты от повторной активации нужно подключить постоянное хранилище Render."});
  const minecraftName=String(req.body.minecraftName||"").trim(),code=String(req.body.code||"").trim().toUpperCase();
  if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Введи корректный Minecraft-ник"});
  if(!/^[A-Z0-9]{3,24}$/.test(code)||!Object.prototype.hasOwnProperty.call(PROMO_CODES,code))return res.status(400).json({error:"Такого промокода нет или он введён неверно."});
