@@ -193,7 +193,7 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
   if(next===previous)next=(next+1+Math.floor(Math.random()*(animations.length-1)))%animations.length;
   previous=next;
   if(art){
-   art.classList.remove(...animations.map(x=>"lumi-anim-"+x));
+   art.classList.remove(...animations.map(x=>"lumi-anim-"+x),..."feed-1 feed-2 feed-3 feed-4 feed-5 feed-6 boop-1 boop-2 boop-3 boop-4 boop-5 boop-6".split(" ").map(x=>"lumi-"+x));
    void art.offsetWidth;
    art.classList.add("lumi-anim-"+animations[next]);
   }
@@ -274,7 +274,7 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
   const last=type==="feed"?lastFeed:lastBoop;
   let n=Math.floor(Math.random()*6);if(n===last)n=(n+1+Math.floor(Math.random()*5))%6;
   if(type==="feed")lastFeed=n;else lastBoop=n;
-  art.classList.remove(...feedNames.map(x=>"lumi-"+x),...boopNames.map(x=>"lumi-"+x));
+  art.classList.remove(...feedNames.map(x=>"lumi-"+x),...boopNames.map(x=>"lumi-"+x),..."bounce wiggle stretch turn happy sway hop sparkle".split(" ").map(x=>"lumi-anim-"+x));
   void art.offsetWidth;art.classList.add("lumi-"+names[n]);
   if(type==="feed"){
    const item=document.createElement("span");item.className="lumi-prop";item.textContent=foods[n];art.appendChild(item);setTimeout(()=>item.remove(),1350);
