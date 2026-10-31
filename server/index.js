@@ -14,6 +14,19 @@ db.exec("DROP TABLE IF EXISTS chat_messages; CREATE TABLE IF NOT EXISTS users(id
 if(!db.prepare("PRAGMA table_info(users)").all().some(c=>c.name==="email"))db.exec("ALTER TABLE users ADD COLUMN email TEXT");
 db.exec("CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique ON users(email) WHERE email IS NOT NULL AND email <> ''");
 db.exec(`
+CREATE TABLE IF NOT EXISTS shop_orders(
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ minecraft_name TEXT NOT NULL,
+ product_type TEXT NOT NULL,
+ product_key TEXT NOT NULL,
+ amount_rub INTEGER NOT NULL,
+ amount_voidcoin INTEGER NOT NULL DEFAULT 0,
+ details TEXT NOT NULL DEFAULT '',
+ image_data TEXT,
+ status TEXT NOT NULL DEFAULT 'awaiting_payment',
+ created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS shop_orders_status ON shop_orders(status,id);
 CREATE TABLE IF NOT EXISTS bridge_link_codes(code TEXT PRIMARY KEY, uuid TEXT NOT NULL, minecraft_name TEXT NOT NULL, expires_at INTEGER NOT NULL, used_at INTEGER);
 CREATE INDEX IF NOT EXISTS bridge_link_codes_expiry ON bridge_link_codes(expires_at);
 CREATE TABLE IF NOT EXISTS linked_accounts(user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, uuid TEXT NOT NULL UNIQUE, minecraft_name TEXT NOT NULL, linked_at TEXT DEFAULT CURRENT_TIMESTAMP);
@@ -33,7 +46,7 @@ let sessionSecret=process.env.SESSION_SECRET;
 if(!sessionSecret){const saved=db.prepare("SELECT value FROM app_secrets WHERE name='session_secret'").get();sessionSecret=saved?.value;if(!sessionSecret){sessionSecret=crypto.randomBytes(48).toString("hex");db.prepare("INSERT INTO app_secrets(name,value) VALUES('session_secret',?)").run(sessionSecret)}} 
 app.set("trust proxy",1);
 app.use(helmet({contentSecurityPolicy:{directives:{"default-src":["'self'"],"base-uri":["'self'"],"font-src":["'self'","https://fonts.gstatic.com","data:"],"form-action":["'self'"],"frame-ancestors":["'none'"],"img-src":["'self'","data:","https:"],"object-src":["'none'"],"script-src":["'self'"],"style-src":["'self'","'unsafe-inline'","https://fonts.googleapis.com"],"connect-src":["'self'"],"upgrade-insecure-requests":production?[]:null}}}));
-app.use(express.json({limit:"16kb"}));
+app.use(express.json({limit:"2mb"}));
 class SQLiteSessionStore extends session.Store{
  get(sid,cb){try{const row=db.prepare("SELECT sess,expires_at FROM web_sessions WHERE sid=?").get(sid);if(!row)return cb(null,null);if(row.expires_at<=Date.now()){db.prepare("DELETE FROM web_sessions WHERE sid=?").run(sid);return cb(null,null)}cb(null,JSON.parse(row.sess))}catch(e){cb(e)}}
  set(sid,sess,cb=()=>{}){try{const exp=sess.cookie?.expires?new Date(sess.cookie.expires).getTime():Date.now()+86400000;db.prepare("INSERT INTO web_sessions(sid,sess,expires_at) VALUES(?,?,?) ON CONFLICT(sid) DO UPDATE SET sess=excluded.sess,expires_at=excluded.expires_at").run(sid,JSON.stringify(sess),exp);db.prepare("DELETE FROM web_sessions WHERE expires_at<=?").run(Date.now());cb()}catch(e){cb(e)}}
@@ -57,6 +70,54 @@ app.post("/api/account/delete",async(req,res)=>{if(!me(req))return res.status(40
 app.get("/api/auth/me",(req,res)=>res.json({user:me(req)||null}));
 app.get("/api/news",(req,res)=>res.json(db.prepare("SELECT id,title,body,created_at FROM news ORDER BY id DESC LIMIT 10").all()));
 app.post("/api/news",staff,(req,res)=>{const t=String(req.body.title||"").trim(),b=String(req.body.body||"").trim();if(!t||!b||t.length>100||b.length>3000)return res.status(400).json({error:"Проверь заголовок и текст"});res.json({id:Number(db.prepare("INSERT INTO news(title,body) VALUES(?,?)").run(t,b).lastInsertRowid)})});
+const shopOrderLimiter=rateLimit({windowMs:60*60*1000,limit:5,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много заявок. Попробуй позже."}});
+const shopRanks={flower:30,harley:40,media:50,division:60,shining:70,void:100};
+app.post("/api/shop/orders",shopOrderLimiter,(req,res)=>{
+ const minecraftName=String(req.body.minecraftName||"").trim();
+ const type=String(req.body.type||"");
+ const key=String(req.body.productKey||"");
+ const details=String(req.body.details||"").trim();
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(minecraftName))return res.status(400).json({error:"Проверь Minecraft-ник: 3–16 латинских букв, цифр или _"});
+ let price=0,coins=0,description="",imageData=null;
+ if(type==="coins"){
+   price=Number(req.body.amountRub);
+   if(!Number.isSafeInteger(price)||price<1||price>10000)return res.status(400).json({error:"Сумма пополнения должна быть от 1 до 10 000 ₽"});
+   coins=price;description="Пополнение VoidCoin";
+ }else if(type==="rank"&&Object.hasOwn(shopRanks,key)){
+   price=shopRanks[key];description="Ранг "+({flower:"Flower",harley:"Harley",media:"Media",division:"Division",shining:"Shining",void:"Void"}[key]);
+ }else if(type==="custom_rank"){
+   price=150;
+   if(!/^[A-Za-zА-Яа-яЁё0-9_ -]{3,16}$/.test(details))return res.status(400).json({error:"Название ранга: 3–16 символов, без спецсимволов"});
+   description="Свой ранг: "+details+" (права как у Void)";
+ }else if(type==="custom_title"){
+   price=30;
+   if(!/^[A-Za-zА-Яа-яЁё0-9_ -]{1,24}$/.test(details))return res.status(400).json({error:"Титул должен быть длиной до 24 символов"});
+   description="Свой титул: "+details;
+ }else if(type==="item_skin"){
+   price=250;
+   if(details.length<2||details.length>80)return res.status(400).json({error:"Укажи предмет, для которого нужна текстура"});
+   const image=String(req.body.imageData||"");
+   if(!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(image)||image.length>1500000)return res.status(400).json({error:"Прикрепи PNG, JPG или WEBP до 1 МБ"});
+   imageData=image;description="Текстура предмета: "+details;
+ }else return res.status(400).json({error:"Выбери товар из списка"});
+ if(details.length>100)return res.status(400).json({error:"Слишком длинное описание"});
+ try{
+   const result=db.prepare("INSERT INTO shop_orders(minecraft_name,product_type,product_key,amount_rub,amount_voidcoin,details,image_data,status) VALUES(?,?,?,?,?,?,?,'awaiting_payment')").run(minecraftName,type,key,price,coins,details,imageData);
+   res.status(201).json({ok:true,orderId:Number(result.lastInsertRowid),status:"awaiting_payment",amountRub:price,amountVoidcoin:coins,message:"Заявка №"+result.lastInsertRowid+" создана. Оплата пока не подключена — ничего не списано и товар не выдан."});
+ }catch(e){res.status(500).json({error:"Не удалось сохранить заявку. Попробуй позже."})}
+});
+app.get("/api/shop/orders",staff,(req,res)=>{
+ const rows=db.prepare("SELECT id,minecraft_name,product_type,product_key,amount_rub,amount_voidcoin,details,status,created_at,CASE WHEN image_data IS NULL THEN 0 ELSE 1 END AS has_image FROM shop_orders ORDER BY id DESC LIMIT 100").all();
+ res.json({orders:rows});
+});
+app.post("/api/shop/orders/:id/status",staff,(req,res)=>{
+ const id=Number(req.params.id),status=String(req.body.status||"");
+ if(!Number.isSafeInteger(id)||id<1||!["manual_review","cancelled"].includes(status))return res.status(400).json({error:"Недопустимый статус"});
+ const result=db.prepare("UPDATE shop_orders SET status=? WHERE id=? AND status='awaiting_payment'").run(status,id);
+ if(!result.changes)return res.status(404).json({error:"Заявка не найдена или уже обработана"});
+ res.json({ok:true});
+});
+
 
 
 const SECRET_SYMBOLS=["moon","star","crystal","key","crown"];
