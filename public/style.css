@@ -31,23 +31,6 @@ body>header,body>main,body>footer{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){.click-ripple{animation-duration:.12s}}
 
 
-/* Shared VoidMain player chat */
-.chat-open{border-color:#b58affaa!important;color:#eadbff!important}
-.chat-modal{position:fixed;inset:0;z-index:1000;background:#05030bd9;backdrop-filter:blur(12px);display:grid;place-items:center;padding:18px}
-.chat-modal.hidden{display:none!important}
-.chat-panel{width:min(620px,100%);height:min(720px,90vh);display:flex;flex-direction:column;background:linear-gradient(145deg,#1b112b,#0b0812);border:1px solid #a66bff70;box-shadow:0 25px 100px #000b,0 0 55px #9c5bff20;padding:24px;border-radius:18px}
-.chat-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #ffffff18;padding-bottom:16px}
-.chat-top small{color:#b58aff;letter-spacing:2px;font-size:9px}.chat-top h2{margin:7px 0 3px;font-size:25px}.chat-top p{margin:0;color:var(--muted);font-size:12px}
-.chat-top .x{position:static;border:0;background:none;color:white;font-size:30px;cursor:pointer}
-.chat-messages{flex:1;min-height:0;overflow-y:auto;padding:18px 4px;display:flex;flex-direction:column;gap:12px}
-.chat-message{max-width:90%;padding:11px 14px;background:#ffffff09;border:1px solid #ffffff12;border-radius:12px 12px 12px 3px;overflow-wrap:anywhere}
-.chat-message-meta{display:flex;gap:12px;align-items:center;margin-bottom:5px}.chat-message-meta strong{font-size:11px;color:#c9aaff}.chat-message-meta time{font-size:9px;color:#82768f}.chat-message p{margin:0;color:#f4edff;font-size:13px;line-height:1.55;white-space:pre-wrap}
-.chat-hint{color:#a99db9;font-size:12px;text-align:center;margin:auto;padding:20px}
-.chat-notice{min-height:16px;margin:0 0 8px;color:#ff9dba;font-size:11px}
-.chat-form{display:flex;gap:9px}.chat-form input{min-width:0;flex:1;background:#090611;border:1px solid #a66bff55;border-radius:9px;padding:13px;color:white;font:inherit;font-size:13px;outline:none}.chat-form input:focus{border-color:#c49cff;box-shadow:0 0 0 3px #a66bff20}.chat-form button{min-width:48px;padding:0 16px}
-.chat-footnote{display:block;text-align:center;color:#80758d;font-size:9px;margin-top:12px}
-@media(max-width:600px){.chat-panel{height:88vh;padding:17px;border-radius:14px}.chat-top h2{font-size:21px}.chat-open{padding:10px 12px;font-size:10px}}
-
 /* Account self-service controls */
 .account-panel{margin-top:18px}.account-panel>p{font-size:12px;color:#cbb9e4;line-height:1.6}.danger-button{width:100%;margin-top:12px;padding:14px;background:#4b1429;border:1px solid #ff6b91;color:#ffdce6;font-weight:800;font-size:11px;letter-spacing:1px}.danger-button:hover{background:#70203b}.danger-button:disabled{opacity:.55;cursor:wait}.logout-button{width:100%;margin-top:10px}.account-panel #accountMessage{min-height:18px;color:#ff9db7;font-size:12px}
 
