@@ -110,3 +110,19 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();if
  async function update(){try{const r=await fetch("/api/leaderboards",{cache:"no-store"});if(!r.ok)throw Error("leaderboards");const d=await r.json();render(play,d.playtime||[],p=>hours(p.playtime_ticks));render(coin,d.voidcoin||[],p=>Number(p.points||0).toLocaleString("ru-RU")+" VC");if(stamp)stamp.textContent=d.updated_at?"Обновлено: "+new Date(d.updated_at+"Z").toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):"Статистика обновляется автоматически"}catch{play.innerHTML='<li class="leaderboard-empty">Не удалось загрузить рейтинг. Попробуй позже.</li>';coin.innerHTML='<li class="leaderboard-empty">Не удалось загрузить рейтинг. Попробуй позже.</li>'}}
  update();setInterval(update,30000);
 })();
+
+/* Reading progress and quick return to the top */
+(()=>{
+ const bar=document.getElementById("scrollProgress"),top=document.getElementById("backToTop");
+ if(!bar||!top)return;
+ const update=()=>{
+  const root=document.documentElement,max=root.scrollHeight-root.clientHeight;
+  const percent=max>0?Math.min(100,Math.max(0,root.scrollTop/max*100)):0;
+  bar.style.width=percent+"%";
+  top.classList.toggle("visible",root.scrollTop>520);
+ };
+ window.addEventListener("scroll",update,{passive:true});
+ window.addEventListener("resize",update);
+ top.addEventListener("click",()=>window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
+ update();
+})();
