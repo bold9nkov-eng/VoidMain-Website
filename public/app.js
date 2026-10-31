@@ -180,26 +180,66 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
  if(nick?.value)checkWheel();
 })();
 
+
 (()=>{
  const tracks=[
-  {name:"01 · Neon Portal",notes:[261.63,392,523.25,392,329.63,440,587.33,440,293.66,440,587.33,440,349.23,523.25,659.25,523.25]},
-  {name:"02 · Lumi's Dream",notes:[220,277.18,329.63,415.3,329.63,277.18,246.94,329.63,196,246.94,293.66,369.99,293.66,246.94,220,293.66]},
-  {name:"03 · Void Drift",notes:[174.61,261.63,349.23,261.63,196,293.66,392,293.66,164.81,246.94,329.63,246.94,185,277.18,370,277.18]}
+  {name:"01 · Neon Portal — Synthwave",bpm:118,wave:"sawtooth",lead:[523,659,784,659,587,698,880,698,523,659,784,988,880,784,659,587],bass:[131,131,165,165,110,110,147,147],chords:[262,330,392,330,294,370,440,370],style:"bright"},
+  {name:"02 · Lumi's Dream — Chill",bpm:82,wave:"triangle",lead:[392,0,494,587,0,494,440,0,392,0,330,392,0,440,494,0],bass:[110,0,165,0,98,0,147,0],chords:[220,262,330,392,196,247,294,370],style:"soft"},
+  {name:"03 · Void Drift — Dark Pulse",bpm:104,wave:"square",lead:[110,0,110,165,0,147,110,0,98,0,147,196,0,165,147,0],bass:[55,55,55,82,49,49,73,73],chords:[110,165,220,165,98,147,196,147],style:"dark"}
  ];
- let ctx=null,master=null,playing=false,track=0,step=0,timer=null;
+ let ctx=null,master=null,compressor=null,playing=false,track=0,step=0,timer=null;
  const play=$("#musicPlay"),name=$("#musicTrackName"),visual=$("#musicVisual"),volume=$("#musicVolume"),volumeValue=$("#musicVolumeValue");
- function setup(){const C=window.AudioContext||window.webkitAudioContext;if(!C)throw Error("Браузер не поддерживает Web Audio");if(!ctx){ctx=new C();master=ctx.createGain();master.gain.value=(Number(volume?.value)||25)/100*.22;master.connect(ctx.destination)}if(ctx.state==="suspended")ctx.resume()}
- function note(freq,duration){const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(freq,now);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.12,now+.035);g.gain.exponentialRampToValueAtTime(.0001,now+duration);o.connect(g);g.connect(master);o.start(now);o.stop(now+duration+.02);const bass=ctx.createOscillator(),bg=ctx.createGain();bass.type="triangle";bass.frequency.setValueAtTime(freq/2,now);bg.gain.setValueAtTime(.0001,now);bg.gain.exponentialRampToValueAtTime(.035,now+.04);bg.gain.exponentialRampToValueAtTime(.0001,now+duration);bass.connect(bg);bg.connect(master);bass.start(now);bass.stop(now+duration+.02)}
- function tick(){const seq=tracks[track].notes;note(seq[step%seq.length],.38);step++}
+ function setup(){
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)throw Error("Твой браузер не поддерживает Web Audio");
+  if(!ctx){ctx=new C();master=ctx.createGain();compressor=ctx.createDynamicsCompressor();compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=8;compressor.attack.value=.003;compressor.release.value=.22;master.gain.value=(Number(volume?.value)??25)/100*.78;master.connect(compressor);compressor.connect(ctx.destination)}
+ }
+ function tone(freq,duration,wave,gain,detune=0){
+  if(!freq)return;const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();
+  o.type=wave;o.frequency.setValueAtTime(freq,now);o.detune.setValueAtTime(detune,now);
+  g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(Math.max(.001,gain),now+.012);
+  g.gain.setTargetAtTime(.0001,now+duration*.58,Math.max(.025,duration*.16));
+  o.connect(g);g.connect(master);o.start(now);o.stop(now+duration+.12);
+ }
+ function kick(){
+  const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";
+  o.frequency.setValueAtTime(125,now);o.frequency.exponentialRampToValueAtTime(42,now+.13);
+  g.gain.setValueAtTime(.55,now);g.gain.exponentialRampToValueAtTime(.0001,now+.19);
+  o.connect(g);g.connect(master);o.start(now);o.stop(now+.2);
+ }
+ function hat(){
+  const length=Math.floor(ctx.sampleRate*.045),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);
+  const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),g=ctx.createGain();src.buffer=buffer;filter.type="highpass";filter.frequency.value=6500;g.gain.value=.13;src.connect(filter);filter.connect(g);g.connect(master);src.start();
+ }
+ function tick(){
+  const t=tracks[track],s=step%16,beat=60/t.bpm/4;
+  if(t.style==="bright"){
+   tone(t.lead[s],beat*.78,t.wave,.22);if(s%4===0)tone(t.chords[Math.floor(s/2)%8],beat*3,"triangle",.11,-7);
+   tone(t.bass[Math.floor(s/2)%8],beat*1.6,"triangle",.2);if(s%4===0)kick();if(s%2===0)hat();
+  }else if(t.style==="soft"){
+   if(t.lead[s])tone(t.lead[s],beat*1.7,"sine",.25);
+   if(s%4===0){const root=t.chords[Math.floor(s/4)%8];tone(root,beat*3,"triangle",.12);tone(root*1.25,beat*3,"sine",.075);tone(root*1.5,beat*3,"sine",.065)}
+   if(s%4===0)tone(t.bass[Math.floor(s/2)%8],beat*3,"sine",.18);
+   if(s===0||s===8)kick();
+  }else{
+   if(t.lead[s]){tone(t.lead[s],beat*.72,"square",.12);tone(t.lead[s]*2,beat*.35,"sawtooth",.045,8)}
+   tone(t.bass[Math.floor(s/2)%8],beat*1.5,"sawtooth",.22);
+   if(s%4===0){kick();tone(t.chords[Math.floor(s/4)%8],beat*2,"triangle",.13)}
+   if(s%2===1)hat();
+  }
+  step++;
+ }
  function paint(){if(name)name.textContent=tracks[track].name;if(play){play.textContent=playing?"Ⅱ":"▶";play.setAttribute("aria-label",playing?"Пауза":"Воспроизвести")}visual?.classList.toggle("is-playing",playing)}
  function stop(){playing=false;if(timer)clearInterval(timer);timer=null;paint()}
- function start(){try{setup();if(playing)return;playing=true;tick();timer=setInterval(tick,470);paint()}catch(e){if(name)name.textContent=e.message}}
+ async function start(){try{setup();await ctx.resume();if(playing)return;playing=true;step=0;tick();timer=setInterval(tick,60000/tracks[track].bpm/4);paint()}catch(e){if(name)name.textContent="Не удалось включить звук: "+e.message}}
+ function changeTrack(direction){track=(track+direction+tracks.length)%tracks.length;step=0;if(playing){if(timer)clearInterval(timer);tick();timer=setInterval(tick,60000/tracks[track].bpm/4)}paint()}
  play?.addEventListener("click",()=>playing?stop():start());
- $("#musicNext")?.addEventListener("click",()=>{track=(track+1)%tracks.length;step=0;paint();if(playing)tick()});
- $("#musicPrev")?.addEventListener("click",()=>{track=(track+tracks.length-1)%tracks.length;step=0;paint();if(playing)tick()});
- volume?.addEventListener("input",()=>{const n=Number(volume.value);if(volumeValue)volumeValue.textContent=n+"%";if(master)master.gain.setTargetAtTime(n/100*.22,ctx.currentTime,.04)});
+ $("#musicNext")?.addEventListener("click",()=>changeTrack(1));
+ $("#musicPrev")?.addEventListener("click",()=>changeTrack(-1));
+ volume?.addEventListener("input",()=>{const n=Number(volume.value);if(volumeValue)volumeValue.textContent=n+"%";if(master&&ctx)master.gain.setTargetAtTime(n/100*.78,ctx.currentTime,.035)});
  paint();
 })();
+
 
 (()=>{
  const key="voidmain-site-preferences",accent=$("#accentSelect"),cursor=$("#cursorToggle"),animations=$("#animationToggle"),reset=$("#customReset");
