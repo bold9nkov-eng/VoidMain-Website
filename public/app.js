@@ -311,5 +311,5 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
   ],{duration:1550,easing:"cubic-bezier(.16,1,.3,1)",fill:"forwards"});
   motion.finished.catch(()=>{}).then(()=>{target.animate([{opacity:0,filter:"blur(5px)"},{opacity:1,filter:"blur(0)"}],{duration:360,easing:"ease-out",fill:"forwards"});finish()});
  };
- setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(start)),3000);
+ setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(start)),2500);
 })();
