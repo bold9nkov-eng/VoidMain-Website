@@ -211,3 +211,14 @@ body::before{background-image:linear-gradient(90deg,rgba(8,5,18,.94) 0%,rgba(8,5
 .leaderboard-empty{padding:22px 8px;text-align:center;color:#a998bb;font-size:13px;line-height:1.7}
 .leaderboard-updated{margin:18px 0 0;color:#9888aa;font-size:11px;text-align:right}
 @media(max-width:720px){.leaderboards{padding:68px 6%}.leaderboard-grid{grid-template-columns:1fr}.leaderboard-card{padding:19px}}
+
+/* Nickname-based VoidCoin reward dialog */
+.reward-dialog{max-width:460px;border-radius:18px;background:linear-gradient(145deg,#1b112b,#100a19);box-shadow:0 24px 90px #000b,0 0 45px #a66bff22}
+.reward-dialog h2{font-size:clamp(25px,5vw,34px);margin:18px 0 12px}
+.reward-dialog>p{font-size:12px;line-height:1.8;color:#c4b3d8}
+.reward-dialog label{margin:22px 0 10px}
+.reward-dialog input{border-radius:9px;font-size:14px}
+.reward-dialog .primary{margin-top:12px}
+.reward-dialog #rewardMessage{min-height:20px;color:#d9baff;font-size:12px;line-height:1.6}
+.reward-dialog .muted{display:block;font-size:10px;line-height:1.7;letter-spacing:.2px;color:#a99db9}
+.reward-dialog .x{z-index:1}
