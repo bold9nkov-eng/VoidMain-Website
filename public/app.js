@@ -141,46 +141,6 @@ $("#rewardClaimForm")?.addEventListener("submit",async e=>{e.preventDefault();co
 })();
 
 
-/* Void Hub interactions: wheel, promo codes, original synth music and preferences */
-(()=>{
- const nick=$("#hubMinecraftName"),wheel=$("#wheelSpin"),wheelMessage=$("#wheelMessage"),countdown=$("#wheelCountdown"),disc=$("#wheelDisc");
- const promoForm=$("#promoForm"),promoCode=$("#promoCode"),promoMessage=$("#promoMessage"),promoSubmit=$("#promoSubmit");
- const nickKey="voidmain-minecraft-nick";
- try{const saved=localStorage.getItem(nickKey)||localStorage.getItem("voidmain-chat-nick")||"";if(nick&&saved)nick.value=saved}catch{}
- function saveNick(){const value=nick?.value.trim()||"";if(!/^[A-Za-z0-9_]{3,16}$/.test(value))return "";try{localStorage.setItem(nickKey,value);localStorage.setItem("voidmain-chat-nick",value)}catch{}return value}
- let wheelAvailableAt=0,wheelAllowed=false,wheelBusy=false,wheelStorageReady=true,rotation=0;
- function clock(ms){const total=Math.max(0,Math.ceil(ms/1000)),d=Math.floor(total/86400),h=Math.floor(total%86400/3600),m=Math.floor(total%3600/60),s=total%60;return (d?d+"д ":"")+(h?String(h).padStart(2,"0")+":":"00:")+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
- function paintCountdown(){if(!countdown)return;if(!wheelStorageReady){countdown.textContent="Нужен постоянный диск Render для защиты наград.";wheelAllowed=false;if(wheel)wheel.disabled=true;return}if(!wheelAvailableAt){countdown.textContent="Первая попытка доступна!";wheelAllowed=true;if(wheel&&!wheelBusy)wheel.disabled=false;return}const left=wheelAvailableAt-Date.now();if(left<=0){countdown.textContent="✦ Колесо снова доступно!";wheelAllowed=true;if(wheel&&!wheelBusy)wheel.disabled=false}else{countdown.textContent="Следующая попытка через "+clock(left);wheelAllowed=false;if(wheel)wheel.disabled=true}}
- async function checkWheel(){const name=saveNick();if(!name){if(wheelMessage)wheelMessage.textContent="Введи Minecraft-ник, чтобы проверить попытку.";wheelAllowed=false;if(wheel)wheel.disabled=true;wheelAvailableAt=0;paintCountdown();return}try{const r=await fetch("/api/wheel/status?minecraftName="+encodeURIComponent(name),{cache:"no-store"}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось проверить колесо");wheelAvailableAt=Number(d.availableAt)||0;wheelAllowed=!!d.available;if(wheelMessage)wheelMessage.textContent=d.available?"Твоя попытка готова. Удачи!":"Ты уже крутил колесо.";paintCountdown()}catch(e){if(String(e.message).includes("постоянное хранилище"))wheelStorageReady=false;if(wheelMessage)wheelMessage.textContent=e.message;paintCountdown()}}
- nick?.addEventListener("change",()=>{checkWheel();if(promoMessage)promoMessage.textContent=""});
- nick?.addEventListener("blur",()=>{if(nick.value.trim())checkWheel()});
- setInterval(paintCountdown,1000);
- const prizeAngles={0:73.846,1:193.846,2:276.923,5:332.308,10:355.385};
- wheel?.addEventListener("click",async()=>{
-  const name=saveNick();if(!name){wheelMessage.textContent="Сначала введи Minecraft-ник.";nick?.focus();return}
-  if(wheelBusy)return;
-  if(!wheelAllowed){await checkWheel();paintCountdown();return}
-  wheelBusy=true;wheel.disabled=true;wheelMessage.textContent="Колесо вращается…";
-  try{
-   const r=await fetch("/api/wheel/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:name})}),d=await r.json();
-   if(!r.ok){if(d.availableAt)wheelAvailableAt=Number(d.availableAt);throw Error(d.error||"Не удалось прокрутить колесо")}
-   wheelAvailableAt=Number(d.availableAt)||Date.now()+172800000;wheelAllowed=false;
-   const center=prizeAngles[Number(d.amount)]??prizeAngles[0];rotation+=360*6+(360-center);
-   disc.style.transform="rotate("+rotation+"deg)";
-   setTimeout(()=>{wheelMessage.textContent=d.amount>0?"✦ Выпало "+d.amount+" VoidCoin! Награда поставлена в очередь выдачи на сервер.":"В этот раз ничего не выпало. Попробуй снова через 48 часов.";wheelBusy=false;paintCountdown()},6300);
-  }catch(e){wheelMessage.textContent=e.message;wheelBusy=false;paintCountdown();if(wheelAllowed)wheel.disabled=false}
- });
- promoForm?.addEventListener("submit",async e=>{
-  e.preventDefault();const name=saveNick(),code=promoCode.value.trim();if(!name){promoMessage.textContent="Сначала введи Minecraft-ник выше.";nick?.focus();return}if(!code){promoMessage.textContent="Введи промокод.";return}
-  promoSubmit.disabled=true;promoMessage.textContent="Проверяем промокод…";
-  try{const r=await fetch("/api/promo/redeem",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({minecraftName:name,code})}),d=await r.json();if(!r.ok)throw Error(d.error||"Не удалось активировать код");promoMessage.textContent=d.message;promoCode.value=""}
-  catch(e){promoMessage.textContent=e.message}
-  finally{promoSubmit.disabled=false}
- });
- if(nick?.value)checkWheel();
-})();
-
-
 (()=>{
  const tracks=[
   {name:"01 · Neon Portal — Synthwave",bpm:118,wave:"sawtooth",lead:[523,659,784,659,587,698,880,698,523,659,784,988,880,784,659,587],bass:[131,131,165,165,110,110,147,147],chords:[262,330,392,330,294,370,440,370],style:"bright"},
