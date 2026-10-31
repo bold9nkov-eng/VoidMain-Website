@@ -5,7 +5,7 @@ async function init(){updateServerStatus();loadNews()}
 setInterval(updateServerStatus,20000);setInterval(loadNews,60000);function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}init();
 // Daily reward: no account, only the Minecraft nickname
 function openReward(){const modal=$("#rewardModal");$("#rewardMessage").textContent="";$("#rewardSubmit").disabled=false;modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");setTimeout(()=>$("#rewardMinecraftName").focus(),80)}
-$("#account")?.addEventListener("click",openReward);$("#dailyRewardCTA")?.addEventListener("click",openReward);
+$("#dailyRewardCTA")?.addEventListener("click",openReward);
 $("#rewardClose")?.addEventListener("click",()=>{$("#rewardModal").classList.add("hidden");$("#rewardModal").setAttribute("aria-hidden","true")});
 $("#rewardModal")?.addEventListener("click",e=>{if(e.target===$("#rewardModal"))$("#rewardClose").click()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#rewardModal").classList.contains("hidden"))$("#rewardClose").click()});
