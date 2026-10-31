@@ -1,7 +1,12 @@
 const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),fs=require("fs"),crypto=require("crypto");
 const production=process.env.NODE_ENV==="production";
-const databasePath=process.env.VOIDMAIN_DB_PATH||(production?"/var/data/voidmain.sqlite":path.join(__dirname,"voidmain.sqlite"));
-if(production&&!fs.existsSync(path.dirname(databasePath)))throw new Error("Persistent database directory is missing: "+path.dirname(databasePath)+". Attach a Render Persistent Disk at /var/data and set VOIDMAIN_DB_PATH=/var/data/voidmain.sqlite.");
+const persistentDatabasePath=process.env.VOIDMAIN_DB_PATH;
+const renderDiskPath="/var/data/voidmain.sqlite";
+const hasPersistentDisk=fs.existsSync(path.dirname(renderDiskPath));
+// Render Free has no persistent disk. Fall back to /tmp so the site can start;
+// data in /tmp is temporary and may be cleared when the instance restarts.
+const databasePath=persistentDatabasePath||(production?(hasPersistentDisk?renderDiskPath:"/tmp/voidmain.sqlite"):path.join(__dirname,"voidmain.sqlite"));
+if(production&&!persistentDatabasePath&&!hasPersistentDisk)console.warn("Render Persistent Disk not found; using temporary /tmp/voidmain.sqlite. Database data may be lost after a restart or redeploy.");
 const app=express(),db=new DB(databasePath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
