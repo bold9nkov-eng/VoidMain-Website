@@ -307,27 +307,3 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 .secret-nick-entry small{display:block;margin-top:9px;color:#b9a9ca;font-size:12px}
 @keyframes secretNickIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.secret-nick-row{flex-direction:column}.secret-nick-row button{width:100%}}
-
-
-/* Interactive first-night checklist */
-.first-night{background:radial-gradient(ellipse at 50% 35%,rgba(112,65,169,.16),transparent 65%)}
-.first-night-intro{max-width:680px;color:var(--muted);font-size:14px;line-height:1.85;margin:-18px 0 30px}
-.first-night-panel{max-width:850px;padding:28px;border:1px solid #a66bff42;border-radius:20px;background:linear-gradient(145deg,#191027eF,#0d0916f5);box-shadow:0 18px 60px #0003}
-.first-night-progress-head{display:flex;justify-content:space-between;gap:15px;align-items:center;color:#e8d9ff;font-size:12px;letter-spacing:1px}
-.first-night-progress-head span{color:#c8a6ff;font-variant-numeric:tabular-nums}
-.first-night-track{height:8px;margin:14px 0 24px;border-radius:20px;background:#ffffff12;overflow:hidden}
-.first-night-track span{display:block;width:0;height:100%;border-radius:20px;background:linear-gradient(90deg,#8245d6,#d0aaff);box-shadow:0 0 18px #a66bff88;transition:width .35s ease}
-.first-night-tasks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.first-night-task{display:flex;align-items:center;gap:14px;min-height:82px;margin:0;padding:16px;border:1px solid #ffffff15;border-radius:13px;background:#ffffff05;cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
-.first-night-task:hover{border-color:#a66bff88;background:#a66bff0d;transform:translateY(-2px)}
-.first-night-task input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.task-check{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border:1px solid #a66bff66;border-radius:10px;color:#c7a5ff;font-size:15px;background:#a66bff10}
-.first-night-task strong{display:block;color:#eee4fa;font-size:12px;line-height:1.5}
-.first-night-task small{display:block;margin-top:4px;color:#a99db9;font-size:10px;letter-spacing:.2px;font-weight:500;line-height:1.5}
-.first-night-task.is-done{border-color:#a66bff77;background:#a66bff12}
-.first-night-task.is-done .task-check{background:#a66bff;color:#12091e;border-color:#c9a6ff}
-.first-night-task.is-done strong{text-decoration:line-through;color:#bdaed0}
-.first-night-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:22px;padding-top:18px;border-top:1px solid #ffffff15}
-.first-night-footer>span{color:#c9b7df;font-size:12px;line-height:1.6}
-.first-night-footer .ghost{display:inline-block;white-space:nowrap;border-radius:9px;padding:10px 13px;font-size:9px}
-@media(max-width:650px){.first-night-panel{padding:18px}.first-night-tasks{grid-template-columns:1fr}.first-night-footer{align-items:flex-start;flex-direction:column}.first-night-footer .ghost{display:block}}
