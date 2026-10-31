@@ -1,4 +1,4 @@
-const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),fs=require("fs"),crypto=require("crypto");
+const express=require("express"),session=require("express-session"),bcrypt=require("bcryptjs"),DB=require("better-sqlite3"),helmet=require("helmet"),rateLimit=require("express-rate-limit"),path=require("path"),fs=require("fs"),crypto=require("crypto"),{Pool}=require("pg");
 const production=process.env.NODE_ENV==="production";
 const persistentDatabasePath=process.env.VOIDMAIN_DB_PATH;
 const renderDiskPath="/var/data/voidmain.sqlite";
@@ -45,6 +45,24 @@ class SQLiteSessionStore extends session.Store{
 app.use(session({name:production?"__Host-voidmain.sid":"voidmain.sid",secret:sessionSecret,store:new SQLiteSessionStore(),resave:false,saveUninitialized:false,rolling:true,cookie:{httpOnly:true,sameSite:"strict",secure:production,path:"/",maxAge:30*24*60*60*1000}}));
 app.use((req,res,next)=>{if(!["POST","PUT","PATCH","DELETE"].includes(req.method))return next();const origin=req.get("origin");if(!origin){const isBridgeLinkCode=production&&req.method==="POST"&&req.path==="/api/bridge/link-code";if(production&&!isBridgeLinkCode)return res.status(403).json({error:"Запрос отклонён проверкой безопасности"});if(isBridgeLinkCode&&!req.is("application/json"))return res.status(415).json({error:"Ожидается JSON-запрос"});return next()}try{const parsed=new URL(origin);if(parsed.host!==req.get("host")||(production&&parsed.protocol!=="https:")||(!production&&!["http:","https:"].includes(parsed.protocol)))return res.status(403).json({error:"Запрос отклонён проверкой безопасности"})}catch{return res.status(403).json({error:"Некорректный источник запроса"})}if(!req.is("application/json"))return res.status(415).json({error:"Ожидается JSON-запрос"});next()});
 app.use(express.static(path.join(__dirname,"../public")));
+const neonBackupPool=process.env.DATABASE_URL?new Pool({connectionString:process.env.DATABASE_URL,max:1,idleTimeoutMillis:10000}):null;
+let neonBackupQueue=Promise.resolve();
+if(neonBackupPool){
+ app.use((req,res,next)=>{
+  const originalEnd=res.end.bind(res);let ending=false;
+  res.end=(...args)=>{
+   if(ending)return res;ending=true;
+   neonBackupQueue=neonBackupQueue.then(async()=>{
+    db.pragma("wal_checkpoint(TRUNCATE)");
+    const snapshot=fs.readFileSync(databasePath);
+    await neonBackupPool.query("INSERT INTO voidmain_sqlite_backup(id,db_data,updated_at) VALUES(1,$1,NOW()) ON CONFLICT(id) DO UPDATE SET db_data=EXCLUDED.db_data,updated_at=NOW()",[snapshot]);
+   }).catch(error=>console.error("Neon database backup failed:",error.message)).finally(()=>originalEnd(...args));
+   return res;
+  };
+  next();
+ });
+}
+
 const loginLimiter=rateLimit({windowMs:15*60*1000,limit:5,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток входа. Попробуй через 15 минут."}});
 const registerLimiter=rateLimit({windowMs:60*60*1000,limit:5,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много регистраций. Попробуй позже."}});
 const linkLimiter=rateLimit({windowMs:15*60*1000,limit:8,standardHeaders:"draft-8",legacyHeaders:false,message:{error:"Слишком много попыток привязки. Получи новый код и попробуй позже."}});
