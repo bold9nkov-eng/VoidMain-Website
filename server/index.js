@@ -155,7 +155,7 @@ app.get("/api/leaderboards",(req,res)=>{const playtime=db.prepare("SELECT minecr
 let publicStatusCache={until:0,data:null};
 app.get("/api/server-status",async(req,res)=>{
   if(publicStatusCache.data&&Date.now()<publicStatusCache.until)return res.json(publicStatusCache.data);
-  const address="fi.cookiecloud.space:25569";
+  const address="213.171.18.150:34768";
   const s=db.prepare("SELECT connected,version,online,max_players,updated_at FROM bridge_server_state WHERE id=1").get();
   const fresh=!!(s.updated_at&&Date.now()-new Date(s.updated_at+"Z").getTime()<120000);
   const heartbeat={connected:!!s.connected&&fresh,version:s.version||"Paper 1.21.11",address,online:fresh?s.online:null,maxPlayers:fresh?s.max_players:null};
